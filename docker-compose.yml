@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # MANDATORY: Service name must be 'database'
+  database:
+    image: mysql:8.0
+    container_name: database
+    environment:
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD} # Changed: Uses variable from .env
+    ports:
+      - "5432:3306" # MANDATORY: external 5432 to internal 3306
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      # Changed: Removed hardcoded password 'Siri' from health check command
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MANDATORY: Service name must be 'backend'
+  backend:
+    build: .
+    container_name: backend
+    ports:
+      - "5000:5000" # MANDATORY: external 5000 to internal 5000
+    environment:
+      # Changed: Database name and password now use variables
+      - SPRING_DATASOURCE_URL=jdbc:mysql://database:3306/${DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET} # Changed: Removed 64-character hardcoded string
+      - FRONTEND_URL=http://frontend:3000 
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MANDATORY: Service name must be 'frontend'
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:3000" # MANDATORY: external 3000 to internal 3000
+    environment:
+      - VITE_API_BASE_URL=http://localhost:5000/api 
+    depends_on:
+      backend:
+        condition: service_healthy 
+
+volumes:
+  db_data:
