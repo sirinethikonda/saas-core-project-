@@ -20,6 +20,8 @@ public class ProjectService {
     private final TenantRepository tenantRepository;
     private final AuditLogger auditLogger;
 
+    private final com.saas.platform.modules.task.TaskRepository taskRepository;
+
     @Transactional
     public ApiResponse<?> createProject(Project project, String userId) {
         String tenantId = TenantContext.getCurrentTenant();
@@ -28,7 +30,7 @@ public class ProjectService {
         Tenant tenant = tenantRepository.findById(tenantId)
                 .orElseThrow(() -> new RuntimeException("Tenant not found"));
 
-        // 2. Enforce Subscription Limits (Requirement 5)
+        // 2. Enforce Subscription Limits
         long currentProjectCount = projectRepository.countByTenantId(tenantId);
         if (currentProjectCount >= tenant.getMaxProjects()) {
             return ApiResponse.error("Project limit reached for your " + tenant.getSubscriptionPlan() + " plan.");
@@ -41,15 +43,36 @@ public class ProjectService {
         if (project.getStatus() == null) project.setStatus("active");
 
         Project savedProject = projectRepository.save(project);
+        
+        // Initialize counts for new project
+        savedProject.setTaskCount(0);
+        savedProject.setCompletedTaskCount(0);
 
-        // 4. Audit Log (Fixed to 2 arguments)
+        // 4. Audit Log
         auditLogger.log("CREATE_PROJECT", "Project created: " + project.getName() + " by " + userId);
 
         return ApiResponse.success("Project created successfully", savedProject);
     }
 
     public List<Project> listAllProjects() {
-        return projectRepository.findAllByTenantId(TenantContext.getCurrentTenant());
+        List<Project> projects = projectRepository.findAllByTenantId(TenantContext.getCurrentTenant());
+        // Populate transient counts
+        projects.forEach(p -> {
+            p.setTaskCount(taskRepository.countByProjectId(p.getId()));
+            p.setCompletedTaskCount(taskRepository.countByProjectIdAndStatus(p.getId(), "completed"));
+        });
+        return projects;
+    }
+    
+    public ApiResponse<?> getProject(String id) {
+        String tenantId = TenantContext.getCurrentTenant();
+        Project project = projectRepository.findByIdAndTenantId(id, tenantId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+        
+        project.setTaskCount(taskRepository.countByProjectId(id));
+        project.setCompletedTaskCount(taskRepository.countByProjectIdAndStatus(id, "completed"));
+        
+        return ApiResponse.success("Project retrieved", project);
     }
 
     @Transactional

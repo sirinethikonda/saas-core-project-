@@ -22,6 +22,7 @@ export default function Dashboard() {
       const res = await apiClient.get('/projects');
       
       const projects = res.data?.data?.projects || 
+                       (Array.isArray(res.data?.data) ? res.data.data : []) || 
                        res.data?.projects || 
                        res.data?.content || 
                        (Array.isArray(res.data) ? res.data : []);

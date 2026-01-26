@@ -86,4 +86,10 @@ public class TaskService {
         
         return ApiResponse.success("Task updated successfully", existingTask);
     }
+    // API 20: List All Tasks for Tenant
+    public ApiResponse<?> getAllTasks() {
+        String tenantId = com.saas.platform.core.middleware.TenantContext.getCurrentTenant();
+        List<Task> tasks = taskRepository.findAllByTenantId(tenantId);
+        return ApiResponse.success("All tasks retrieved", tasks);
+    }
 }

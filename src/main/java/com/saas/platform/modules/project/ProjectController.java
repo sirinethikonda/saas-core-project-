@@ -34,6 +34,12 @@ public class ProjectController {
         return ApiResponse.success("Projects fetched", projectService.listAllProjects());
     }
 
+    // API: Get Single Project (Missing before)
+    @GetMapping("/{id}")
+    public ApiResponse<?> get(@PathVariable String id) {
+        return projectService.getProject(id);
+    }
+
     // API 14: Update Project
     @PutMapping("/{id}")
     public ApiResponse<?> update(@PathVariable String id, @RequestBody Project project) {

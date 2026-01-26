@@ -7,4 +7,5 @@ import java.util.List;
 @Repository
 public interface AuditLogRepository extends JpaRepository<AuditLog, String> {
     List<AuditLog> findAllByTenantId(String tenantId);
+    List<AuditLog> findAllByTenantIdOrderByTimestampDesc(String tenantId);
 }

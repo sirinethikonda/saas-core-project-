@@ -23,7 +23,11 @@ export default function UsersList() {
       setLoading(true);
       const tenantId = localStorage.getItem('tenantId');
       const res = await apiClient.get(`/tenants/${tenantId}/users`);
-      const userData = res.data?.data?.users || res.data?.users || res.data;
+      // Fix: Handle both wrapped List and potential nested checks
+      const userData = res.data?.data?.users ||
+        (Array.isArray(res.data?.data) ? res.data.data : []) ||
+        res.data?.users ||
+        res.data;
       setUsers(Array.isArray(userData) ? userData : []);
     } catch (err) {
       console.error("User Fetch Error", err);
@@ -46,8 +50,8 @@ export default function UsersList() {
   };
 
   const filteredUsers = Array.isArray(users) ? users.filter(u => {
-    const matchesSearch = u.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          u.email?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = u.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === 'all' || u.role === roleFilter;
     return matchesSearch && matchesRole;
   }) : [];
@@ -68,9 +72,9 @@ export default function UsersList() {
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-3.5 text-gray-400" size={20} />
-            <input 
-              type="text" 
-              placeholder="Filter by name or email..." 
+            <input
+              type="text"
+              placeholder="Filter by name or email..."
               className="w-full pl-12 pr-4 py-3 bg-white border border-gray-100 rounded-2xl outline-none shadow-sm focus:ring-2 focus:ring-primary/20 transition-all"
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -113,8 +117,8 @@ export default function UsersList() {
                         </span>
                       </td>
                       <td className="p-6 text-right space-x-1">
-                        <button onClick={() => { setSelectedUser(u); setIsModalOpen(true); }} className="p-2.5 text-gray-400 hover:text-primary hover:bg-blue-50 rounded-xl transition-all"><Edit3 size={18}/></button>
-                        <button onClick={() => handleDelete(u.id, u.fullName)} className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={18}/></button>
+                        <button onClick={() => { setSelectedUser(u); setIsModalOpen(true); }} className="p-2.5 text-gray-400 hover:text-primary hover:bg-blue-50 rounded-xl transition-all"><Edit3 size={18} /></button>
+                        <button onClick={() => handleDelete(u.id, u.fullName)} className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={18} /></button>
                       </td>
                     </tr>
                   ))}

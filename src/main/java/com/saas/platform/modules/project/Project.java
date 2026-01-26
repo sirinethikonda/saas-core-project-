@@ -36,4 +36,10 @@ public class Project {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    @Transient
+    private long taskCount;
+
+    @Transient
+    private long completedTaskCount;
 }

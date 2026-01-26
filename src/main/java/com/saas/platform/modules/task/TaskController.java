@@ -35,4 +35,9 @@ public class TaskController {
     public ApiResponse<?> updateTask(@PathVariable String taskId, @RequestBody Task task) {
         return taskService.updateTask(taskId, task);
     }
+    // API 20: List All Tasks
+    @GetMapping("/tasks")
+    public ApiResponse<?> getAllTasks() {
+        return taskService.getAllTasks();
+    }
 }

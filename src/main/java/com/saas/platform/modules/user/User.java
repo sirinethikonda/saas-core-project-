@@ -40,5 +40,9 @@ public class User {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+    
+    @Transient
+    private String password;
+
     private Boolean isActive = true;
 }

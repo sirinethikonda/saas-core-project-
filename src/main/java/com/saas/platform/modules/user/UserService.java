@@ -42,7 +42,13 @@ public class UserService {
 
         userRequest.setId(UUID.randomUUID().toString());
         userRequest.setTenantId(tenantId);
-        userRequest.setPasswordHash(passwordEncoder.encode("User@123")); 
+        
+        // Use provided password or default
+        String rawPassword = (userRequest.getPassword() != null && !userRequest.getPassword().isEmpty()) 
+                             ? userRequest.getPassword() 
+                             : "User@123";
+        userRequest.setPasswordHash(passwordEncoder.encode(rawPassword)); 
+        
         userRequest.setIsActive(true);
         
         User savedUser = userRepository.save(userRequest);
@@ -57,7 +63,7 @@ public class UserService {
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Tenant Isolation Check (Requirement 4)
+        // Tenant Isolation Check (Consider allowing self-update if IDs match, typically handled by PreAuthorize but good to double check)
         if (!existingUser.getTenantId().equals(tenantId)) {
             return ApiResponse.error("Unauthorized: You cannot update a user from another organization");
         }
@@ -65,6 +71,11 @@ public class UserService {
         if (updates.getFullName() != null) existingUser.setFullName(updates.getFullName());
         if (updates.getRole() != null) existingUser.setRole(updates.getRole());
         
+        // Handle Password Update
+        if (updates.getPassword() != null && !updates.getPassword().isEmpty()) {
+            existingUser.setPasswordHash(passwordEncoder.encode(updates.getPassword()));
+        }
+
         User savedUser = userRepository.save(existingUser);
         auditLogger.log("UPDATE_USER", "User " + userId + " updated by " + adminId);
         

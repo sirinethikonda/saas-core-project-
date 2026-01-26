@@ -1,159 +1,202 @@
-# SAAS.CORE Multi-Tenant Project Management System
+#  SAAS.CORE Platform
+### Multi-Tenant Project Management System
 
-SAAS.CORE is a full-stack, multi-tenant SaaS application designed for project and team management. The architecture ensures strict data isolation by partitioning all data via a unique tenant identifier across the frontend, API layer, and database.
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Status](https://img.shields.io/badge/status-active-success.svg) ![Java](https://img.shields.io/badge/Java-17-orange) ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2-success) ![React](https://img.shields.io/badge/React-18-blue)
 
-##Technical Stack
+**SAAS.CORE** is an enterprise-grade, multi-tenant SaaS solution designed for seamless project and team collaboration. Engineered with a strict data isolation architecture, it ensures secure partitioning across the frontend, API, and database layers.
 
-**Backend:**
+---
 
-* Java 17 with Spring Boot 3 (Spring Security, Spring Data JPA) for robust server-side logic and multi-tenant filtering.
+##  Key Features
 
-**Frontend:**
+| Feature | Description |
+| :--- | :--- |
+| **📊 Dashboard Analytics** | Real-time insights into total projects, task completion rates, and active workspace metrics. |
+| **🔒 Multi-Tenant Security** | Automatic `X-Tenant-ID` injection and validation ensuring strict data isolation per organization. |
+| **📁 Project Workspace** | comprehensive tools for project lifecycle management, from initialization to archiving. |
+| **✅ Kanban Task Manager** | Intuitive task tracking (Todo, In-Progress, Completed) with priority flagging and deadlines. |
+| **👥 RBAC Administration** | Role-Based Access Control allowing Admin/User hierarchies for secure team management. |
+| **🛡️ Activity Auditing** | Detailed audit logs tracking all critical system actions for compliance and security. |
 
-* React 18 with Vite, Tailwind CSS for professional UI, and Lucide Icons.
-Backend: Spring Boot 3 with Java 17 and Spring Security.
+---
 
-**Database:**
+##  Technology Stack
 
-* PostgreSQL for persistent, relational data storage.
+### **Backend Core**
+*   **Framework**: Java 17, Spring Boot 3
+*   **Security**: Spring Security (JWT + Custom Tenant Interceptors)
+*   **Persistence**: Spring Data JPA, Hibernate, MySQL
+*   **Build Tool**: Maven
 
-**Networking:**
+### **Frontend Interface**
+*   **Library**: React 18 (Vite)
+*   **Styling**: Tailwind CSS
+*   **Components**: Lucide Icons
+*   **State**: React Context API
 
-* Axios with global interceptors for handling JSON Web Tokens (JWT) and tenant headers.
+### **Infrastructure**
+*   **Containerization**: Docker & Docker Compose
+*   **Gateway**: Nginx (Reverse Proxy)
 
-**Orchestration:**
+---
 
- Docker and Docker-Compose for containerized deployment.
- 
-**Key Features**
+## 🏗️ System Architecture
 
-* Dashboard Analytics: Real-time stats for total projects, task counts, and completion percentages based on the authenticated tenant.
-
-* Multi-Tenant Isolation: Every API request automatically attaches an X-Tenant-ID header to ensure users only access their organization's data.
-
-* Project Workspace: Tools for creating projects, inline title editing, and archiving initiatives.
-
-* Task Management: Kanban-style categorization (Todo, In-Progress, Completed) with priority levels and due-date tracking.
-
-* Team Administration: Role-Based Access Control (RBAC) allowing admins to manage members, while standard users access only assigned workspaces.
-
-**Project Structure**
-
+### 1. System Context (C4)
+```mermaid
+C4Context
+    title System Context Diagram for SAAS.CORE
+    Person(admin, "Tenant Admin", "Manages organization, adds members, and creates projects")
+    Person(user, "Standard User", "Collaborates on tasks and projects")
+    System(saas_platform, "SAAS.CORE Platform", "Multi-tenant project management solution")
+    Rel(admin, saas_platform, "Registers, Manages Team, Configures Settings")
+    Rel(user, saas_platform, "Views Projects, Updates Tasks")
 ```
-multi-tenant-saas-backend/
-├── src/main/java/com/saas/platform/
-│   ├── MultiTenantSaaSApplication.java    # Main Entry Point
-│   │
-│   ├── core/                              # Infrastructure & Cross-cutting concerns
-│   │   ├── config/                        # Spring Configuration
-│   │   │   ├── SecurityConfig.java        # Security & RBAC setup
-│   │   │   ├── WebMvcConfig.java          # CORS & Interceptors
-│   │   │   └── DatabaseConfig.java        # MySQL & JPA settings
-│   │   ├── security/                      # JWT & Auth logic
-│   │   │   ├── JwtService.java            # Token generation/validation
-│   │   │   ├── JwtAuthFilter.java         # Token extraction from headers
-│   │   │   └── UserDetailsServiceImpl.java# Spring Security integration
-│   │   ├── middleware/                    # SaaS Specific Logic
-│   │   │   ├── TenantContext.java         # ThreadLocal storage for tenant_id
-│   │   │   └── TenantInterceptor.java     # Extracts subdomain/tenant_id from requests
-│   │   ├── exception/                     # Global Error Handling
-│   │   │   ├── GlobalExceptionHandler.java
-│   │   │   └── TenantNotFoundException.java
-│   │   └── common/                        # Generic Utilities
-│   │       ├── ApiResponse.java           # Standard {success, message, data}
-│   │       └── AuditLogger.java           # Shared Audit Logging service
-│   │
-│   └── modules/                           # Feature-based business logic
-│       ├── auth/                          # Login & Tenant Registration
-│       │   ├── AuthController.java
-│       │   ├── AuthService.java
-│       │   └── dto/ (LoginRequest, RegisterRequest)
-│       ├── tenant/                        # Subscription & Plan management
-│       │   ├── Tenant.java                # Entity
-│       │   ├── TenantRepository.java
-│       │   ├── TenantController.java
-│       │   └── TenantService.java
-│       ├── user/                          # Team Member Management
-│       │   ├── User.java                  # Entity
-│       │   ├── UserRepository.java
-│       │   └── UserController.java
-│       ├── project/                       # Projects Module
-│       │   ├── Project.java               # Entity
-│       │   ├── ProjectRepository.java
-│       │   ├── ProjectService.java
-│       │   └── ProjectController.java
-│       ├── task/                          # Tasks Module
-│       │   ├── Task.java                  # Entity
-│       │   ├── TaskRepository.java
-│       │   └── TaskController.java
-│       └── audit/                         # Audit Logs Module
-│           ├── AuditLog.java              # Entity
-│           └── AuditLogRepository.java
-│
-├── src/main/resources/
-│   ├── db/migration/                      # Flyway or Liquibase scripts (Recommended)
-│   │   └── V1__initial_schema.sql
-│   ├── application.yml                    # Configuration (DB, JWT, Ports)
-│   └── application-dev.yml                # Development specific settings
-│
-├── Dockerfile                             # Mandatory Docker instructions
-├── docker-compose.yml                     # Multi-service orchestration
-├── pom.xml                                # Maven Dependencies
-└── .env.example                           # Environment variables template
 
+### 2. Micro-Container Architecture
+```mermaid
+graph TD
+    subgraph Client [Client Tier]
+        Browser["Web Browser<br/>(React + Tailwind)"]:::browser
+    end
+    subgraph Server [Backend Tier]
+        LB["Nginx Gateway<br/>(Port 3000)"]:::lb
+        API["Spring Boot API<br/>(Port 5000)"]:::java
+    end
+    subgraph Data [Persistence Tier]
+        DB[("MySQL Database<br/>(Tenant Isolated)")]:::db
+    end
+
+    classDef browser fill:#61dafb,stroke:#20232a,stroke-width:2px,color:#20232a;
+    classDef java fill:#6db33f,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef db fill:#00758f,stroke:#fff,stroke-width:2px,color:#fff,shape:cylinder;
+    classDef lb fill:#e68523,stroke:#fff,stroke-width:2px,color:#fff;
+
+    Browser -->|JSON/HTTPS| LB
+    LB -->|Proxy Pass| API
+    API -->|JPA/Hibernate| DB
 ```
-**Prerequisites**
 
-* Docker Desktop installed and running.
-* Node.js (for local development only).
-* Java 17 and Maven (for local backend     development).
+### 3. Multi-Tenant Request Flow
+```mermaid
+sequenceDiagram
+    participant User
+    participant App as React Client
+    participant Interceptor as Tenant Interceptor
+    participant Service as Service Layer
+    participant DB as MySQL
 
-##Steps to Run the Application
+    User->>App: Action (e.g., Load Projects)
+    App->>Interceptor: REST Request + [X-Tenant-ID]
+    Interceptor->>Interceptor: Validate Tenant Access
+    Interceptor->>Service: Forward Context
+    Service->>DB: Query { WHERE tenant_id = ? }
+    DB-->>Service: Tenant-Scoped Data
+    Service-->>App: JSON Response
+```
 
-**1. Build and Start Containers**
+---
 
-    Navigate to the root directory where the docker-compose.yml file is located and run the following command to build the images and start the services: docker-compose up --build -d
-    
-**2. Access the Application**
+## 📸 Application Gallery
 
-      Frontend: http://localhost:3000
+### **Core Workspaces**
+| Intelligence Dashboard | Project Hub | Task Kanban |
+|:---:|:---:|:---:|
+| ![Dashboard](screenshots/dashboard.png) | ![Projects](screenshots/projects_grid.png) | ![Tasks](screenshots/all_tasks.png) |
 
-** 3. Initialize Organization**
+### **Administration & Profile**
+| Team Board | User Settings | Security Center |
+|:---:|:---:|:---:|
+| ![Team](screenshots/team_management.png) | ![Profile](screenshots/settings_profile.png) | ![Security](screenshots/settings_security.png) |
 
- * Go to the registration page.
+### **Interactive Modals**
+| Project Creation | Task Assignment | Member Onboarding |
+|:---:|:---:|:---:|
+| ![New](screenshots/new_project_modal.png) | ![Assign](screenshots/assign_task_modal.png) | ![Invite](screenshots/add_member_modal.png) |
 
- * Register a new account. This automatically creates a new Tenant ID for your organization.
+### **Authentication**
+| Secure Login | Organization Registration |
+|:---:|:---:|
+| ![Login](screenshots/login.png) | ![Register](screenshots/register.png) |
 
- * Log in with the newly created Admin credentials.
- 
-**4. Create Project and Tasks**
+---
 
- * Navigate to the Projects page and select "Create New Project".
+##  Getting Started
 
- * Enter project details and save.
+### Prerequisites
+*   Docker Desktop & Docker Compose
+*   Node.js (for local dev)
 
- * Open the project and use the Task Modal to assign team tasks.
- 
-###API Integration Details
+### Installation
+1.  **Clone & Build**
+    ```bash
+    git clone https://github.com/your-org/saas-core.git
+    cd saas-core
+    docker-compose up --build -d
+    ```
 
- * The system relies on a global interceptor to maintain security. Every outgoing request includes:
+2.  **Access the Platform**
+    *   **Frontend**: [http://localhost:3000](http://localhost:3000)
+    *   **Backend API**: [http://localhost:5000](http://localhost:5000)
 
-     Authorization: Bearer <JWT_TOKEN>
+3.  **Initial Setup**
+    1.  Go to `http://localhost:3000/register` to create your Organization (Tenant).
+    2.  Login with your Admin credentials.
+    3.  Start creating projects and inviting team members!
 
-     X-Tenant-ID: The unique identifier for the organization.
+---
 
+## 🧪 API Developer Guide
 
-###Development and Troubleshooting
+Common payloads for testing via **Postman** or **cURL**.
 
-**Save All Edited Files**
- * In Spring Tool Suite 4 (STS4), always use the Save All command or Ctrl + Shift + S to ensure both frontend logic and backend controllers are synchronized before rebuilding containers
- 
-**Handling Data Patterns** 
+### 1. Register Organization
+**POST** `http://localhost:5000/api/auth/register/tenant`
+```json
+{
+  "name": "Tesla Innovations",
+  "subdomain": "tesla",
+  "adminEmail": "elon@tesla.com",
+  "password": "SecurePassword123!"
+}
+```
 
- * The frontend uses a robust data picker to handle various Spring Boot JSON response formats (wrapped or flat) to ensure the UI remains responsive and counts are accurate.
+### 2. User Login
+**POST** `http://localhost:5000/api/auth/login`
+```json
+{
+  "email": "elon@tesla.com",
+  "password": "SecurePassword123!",
+  "tenantSubdomain": "tesla"
+}
+```
 
- 
-     
+### 3. Create Project
+**POST** `http://localhost:5000/api/projects`
+*(Requires `Authorization: Bearer <token>`)*
+```json
+{
+  "name": "Mars Mission Controller",
+  "description": "Navigation systems for Starship",
+  "status": "active"
+}
+```
 
-         
+---
+
+## Project Structure
+```bash
+/saas-core
+├── /backend            # Spring Boot Application
+│   ├── /config         # Security & Tenant Config
+│   ├── /modules        # Domain Logic (User, Project, Task)
+│   └── /core           # Shared Utilities
+├── /frontend           # React Application
+│   ├── /src/pages      # Route Views
+│   └── /src/components # Reusable UI
+└── docker-compose.yml  # Orchestration
+```
+
+---
+
 
