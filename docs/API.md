@@ -6,7 +6,7 @@
 *   **Endpoint:** `POST /api/auth/register-tenant`
 *   **Auth:** Public
 *   **Body:**
-    ```json
+    ``` json
    {
     "tenantName": "Sri Corp",
     "subdomain": "srinih",
@@ -14,6 +14,7 @@
     "adminEmail": "kondasri@gmail.com",
     "adminPassword": "KondaSri@321"
     }
+    
     ```
 *   **Response (201 Created):**
     ```json
