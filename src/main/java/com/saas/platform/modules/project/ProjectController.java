@@ -14,6 +14,8 @@ import com.saas.platform.core.common.ApiResponse;
 
 import lombok.RequiredArgsConstructor;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/projects")
 @RequiredArgsConstructor
@@ -23,7 +25,7 @@ public class ProjectController {
 
     // API 12: Create Project
     @PostMapping
-    public ApiResponse<?> create(@RequestBody Project project) {
+    public ApiResponse<?> create(@Valid @RequestBody Project project) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         return projectService.createProject(project, userId);
     }
@@ -42,7 +44,7 @@ public class ProjectController {
 
     // API 14: Update Project
     @PutMapping("/{id}")
-    public ApiResponse<?> update(@PathVariable String id, @RequestBody Project project) {
+    public ApiResponse<?> update(@PathVariable String id, @Valid @RequestBody Project project) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         return projectService.updateProject(id, project, userId);
     }

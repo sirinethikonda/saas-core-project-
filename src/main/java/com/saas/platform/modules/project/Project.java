@@ -3,6 +3,8 @@ package com.saas.platform.modules.project;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "projects")
@@ -14,6 +16,8 @@ public class Project {
     @Column(name = "tenant_id", nullable = false)
     private String tenantId;
 
+    @NotBlank(message = "Project name is required")
+    @Size(min = 3, max = 100, message = "Project name must be between 3 and 100 characters")
     @Column(nullable = false)
     private String name;
 

@@ -43,30 +43,40 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        jwt = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(jwt);
-        tenantId = jwtService.extractTenantId(jwt);
+        try {
+            jwt = authHeader.substring(7);
+            userEmail = jwtService.extractUsername(jwt);
+            tenantId = jwtService.extractTenantId(jwt);
 
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-            
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                // 1. Set Tenant ID in Context for Data Isolation
-                TenantContext.setCurrentTenant(tenantId);
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                // 1. Set Tenant ID in Context EARLIER to allow UserDetailsService to scope lookup
+                if (tenantId != null) {
+                    TenantContext.setCurrentTenant(tenantId);
+                }
 
-                // 2. Extract Role and add ROLE_ prefix
-                String role = jwtService.extractClaim(jwt, claims -> claims.get("role", String.class));
-                var authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        authorities // Use prefixed authorities for hasRole checks
-                );
-                
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    // TenantContext is already set above
+
+
+                    // 2. Extract Role and add ROLE_ prefix
+                    String role = jwtService.extractClaim(jwt, claims -> claims.get("role", String.class));
+                    var authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
+
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            authorities // Use prefixed authorities for hasRole checks
+                    );
+
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        } catch (Exception e) {
+            System.err.println("Authentication Failed: " + e.getMessage());
+            e.printStackTrace(); // Helpful for debugging Docker logs
         }
         
         try {

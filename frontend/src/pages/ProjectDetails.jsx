@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  Plus, Calendar, Trash2, Edit3, ArrowLeft, Loader2, Save, X, 
-  Flag, Filter 
+import {
+  Plus, Calendar, Trash2, Edit3, ArrowLeft, Loader2, Save, X,
+  Flag, Filter
 } from 'lucide-react';
 import apiClient from '../api/apiClient';
 import TaskModal from '../components/TaskModal';
@@ -10,7 +10,7 @@ import TaskModal from '../components/TaskModal';
 export default function ProjectDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   // States
   const [project, setProject] = useState(null);
   const [tasks, setTasks] = useState([]);
@@ -18,7 +18,7 @@ export default function ProjectDetails() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-  
+
   // Requirement 4.3: Filter state for real-time task narrowing
   const [filters, setFilters] = useState({ status: 'all', priority: 'all' });
 
@@ -33,14 +33,31 @@ export default function ProjectDetails() {
         apiClient.get(`/projects/${id}`),
         apiClient.get(`/projects/${id}/tasks`)
       ]);
-      
-      // Extraction logic ensuring visibility regardless of backend DTO structure
+
+      // Extraction logic for Project
       const projectData = projRes.data.data?.project || projRes.data.project || projRes.data;
-      const tasksData = taskRes.data.data?.tasks || taskRes.data.tasks || taskRes.data || [];
-      
+
+      // Extraction logic for Tasks - FIX: Handle direct array vs nested vs wrapped
+      let tasksData = [];
+      if (Array.isArray(taskRes.data)) {
+        tasksData = taskRes.data;
+      } else if (Array.isArray(taskRes.data?.data)) {
+        tasksData = taskRes.data.data;
+      } else if (Array.isArray(taskRes.data?.data?.tasks)) {
+        tasksData = taskRes.data.data.tasks;
+      } else if (Array.isArray(taskRes.data?.tasks)) {
+        tasksData = taskRes.data.tasks;
+      }
+
+      // Normalize status to lowercase
+      const normalizedTasks = tasksData.map(t => ({
+        ...t,
+        status: t.status ? t.status.toLowerCase() : 'todo'
+      }));
+
       setProject(projectData);
       setEditedTitle(projectData?.name || '');
-      setTasks(Array.isArray(tasksData) ? tasksData : []);
+      setTasks(normalizedTasks);
     } catch (err) {
       console.error("Fetch Error:", err);
     } finally {
@@ -59,8 +76,8 @@ export default function ProjectDetails() {
       await apiClient.put(`/projects/${id}`, { ...project, name: editedTitle });
       setProject({ ...project, name: editedTitle });
       setIsEditingTitle(false);
-    } catch (err) { 
-      alert("Update failed. Check organization permissions."); 
+    } catch (err) {
+      alert("Update failed. Check organization permissions.");
     }
   };
 
@@ -72,8 +89,8 @@ export default function ProjectDetails() {
       await apiClient.patch(`/tasks/${taskId}/status`, { status: newStatus });
       // Optimistic state update for instant UI feedback
       setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
-    } catch (err) { 
-      alert("Status update failed"); 
+    } catch (err) {
+      alert("Status update failed");
     }
   };
 
@@ -85,8 +102,8 @@ export default function ProjectDetails() {
       try {
         await apiClient.delete(`/tasks/${taskId}`);
         setTasks(prev => prev.filter(t => t.id !== taskId));
-      } catch (err) { 
-        alert("Delete operation failed"); 
+      } catch (err) {
+        alert("Delete operation failed");
       }
     }
   };
@@ -103,7 +120,7 @@ export default function ProjectDetails() {
 
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-gray-50">
-      <Loader2 className="animate-spin text-primary" size={40} />
+      <Loader2 className="animate-spin text-primary-600" size={40} />
     </div>
   );
 
@@ -112,9 +129,9 @@ export default function ProjectDetails() {
   return (
     <div className="min-h-screen bg-gray-50 p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
-        
+
         {/* Navigation */}
-        <button onClick={() => navigate('/projects')} className="flex items-center gap-2 text-gray-400 hover:text-primary font-bold mb-6 transition group">
+        <button onClick={() => navigate('/projects')} className="flex items-center gap-2 text-gray-400 hover:text-primary-600 font-bold mb-6 transition group">
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" /> Back to Projects
         </button>
 
@@ -125,25 +142,25 @@ export default function ProjectDetails() {
               <div className="flex items-center gap-4 mb-3">
                 {isEditingTitle ? (
                   <div className="flex items-center gap-2 w-full max-w-md animate-in slide-in-from-left-2">
-                    <input 
-                      className="text-3xl font-black text-gray-900 bg-gray-50 border-b-2 border-primary outline-none px-2 w-full"
+                    <input
+                      className="text-3xl font-black text-gray-900 bg-gray-50 border-b-2 border-primary-600 outline-none px-2 w-full"
                       value={editedTitle}
                       onChange={(e) => setEditedTitle(e.target.value)}
                       onBlur={handleUpdateProjectName}
                       onKeyDown={(e) => e.key === 'Enter' && handleUpdateProjectName()}
                       autoFocus
                     />
-                    <button onClick={handleUpdateProjectName} className="p-2 bg-primary text-white rounded-lg"><Save size={18}/></button>
+                    <button onClick={handleUpdateProjectName} className="p-2 bg-primary-600 text-white rounded-lg"><Save size={18} /></button>
                   </div>
                 ) : (
                   <>
-                    <h1 
-                      className="text-4xl font-black text-gray-900 tracking-tight cursor-pointer hover:text-primary transition-colors" 
+                    <h1
+                      className="text-4xl font-black text-gray-900 tracking-tight cursor-pointer hover:text-primary-600 transition-colors"
                       onDoubleClick={() => setIsEditingTitle(true)}
                     >
                       {project?.name}
                     </h1>
-                    <span className="text-[10px] font-black uppercase px-3 py-1 rounded-full bg-blue-50 text-primary">
+                    <span className="text-[10px] font-black uppercase px-3 py-1 rounded-full bg-blue-50 text-primary-600">
                       {project?.status || 'Active'}
                     </span>
                   </>
@@ -153,8 +170,8 @@ export default function ProjectDetails() {
                 {project?.description || 'No description available for this project.'}
               </p>
             </div>
-            <button onClick={() => setIsEditingTitle(true)} className="p-3 bg-gray-50 text-gray-400 hover:text-primary rounded-xl transition-all border border-transparent hover:border-gray-100">
-              <Edit3 size={20}/>
+            <button onClick={() => setIsEditingTitle(true)} className="p-3 bg-gray-50 text-gray-400 hover:text-primary-600 rounded-xl transition-all border border-transparent hover:border-gray-100">
+              <Edit3 size={20} />
             </button>
           </div>
         </div>
@@ -167,10 +184,10 @@ export default function ProjectDetails() {
           <div className="flex flex-wrap gap-3">
             <div className="relative">
               <Filter className="absolute left-3 top-2.5 text-gray-400" size={16} />
-              <select 
+              <select
                 className="pl-10 pr-8 py-2 bg-white border border-gray-100 rounded-xl text-xs font-bold text-gray-600 outline-none appearance-none cursor-pointer shadow-sm"
                 value={filters.priority}
-                onChange={(e) => setFilters({...filters, priority: e.target.value})}
+                onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
               >
                 <option value="all">Priority: All</option>
                 <option value="high">Priority: High</option>
@@ -178,9 +195,9 @@ export default function ProjectDetails() {
                 <option value="low">Priority: Low</option>
               </select>
             </div>
-            <button 
+            <button
               onClick={() => setIsTaskModalOpen(true)}
-              className="bg-primary text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 transition shadow-lg shadow-blue-100 active:scale-95"
+              className="bg-primary-600 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 transition shadow-lg shadow-blue-100 active:scale-95"
             >
               <Plus size={20} /> New Task
             </button>
@@ -197,7 +214,7 @@ export default function ProjectDetails() {
                   {group.replace('_', ' ')}
                 </h3>
               </div>
-              
+
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <tbody className="divide-y divide-gray-50">
@@ -209,15 +226,14 @@ export default function ProjectDetails() {
                             <span className="text-[10px] text-gray-300 font-black uppercase">UID: {task.id?.slice(0, 8)}</span>
                           </td>
                           <td className="py-6 px-4">
-                            <span className={`flex items-center gap-1.5 text-[10px] font-black uppercase px-2.5 py-1 rounded-lg w-fit ${
-                              task.priority === 'high' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'
-                            }`}>
+                            <span className={`flex items-center gap-1.5 text-[10px] font-black uppercase px-2.5 py-1 rounded-lg w-fit ${task.priority === 'high' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'
+                              }`}>
                               <Flag size={10} /> {task.priority}
                             </span>
                           </td>
                           <td className="py-6 px-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-black text-xs uppercase shadow-inner">
+                              <div className="w-8 h-8 bg-primary-50 rounded-lg flex items-center justify-center text-primary-600 font-black text-xs uppercase shadow-inner">
                                 {task.assignedUser?.fullName?.charAt(0) || 'U'}
                               </div>
                               <p className="text-sm font-bold text-gray-700 truncate max-w-[140px]">
@@ -226,19 +242,19 @@ export default function ProjectDetails() {
                             </div>
                           </td>
                           <td className="py-6 px-4 text-gray-400 text-xs font-bold">
-                            <div className="flex items-center gap-1.5 opacity-60"><Calendar size={14}/> {task.dueDate || 'No Deadline'}</div>
+                            <div className="flex items-center gap-1.5 opacity-60"><Calendar size={14} /> {task.dueDate || 'No Deadline'}</div>
                           </td>
                           <td className="py-6 px-8 text-right">
                             <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                              <select 
+                              <select
                                 onChange={(e) => handleStatusChange(task.id, e.target.value)}
-                                className="text-[10px] font-black uppercase border border-gray-100 rounded-lg px-3 py-1.5 bg-white cursor-pointer hover:border-primary transition-colors outline-none"
+                                className="text-[10px] font-black uppercase border border-gray-100 rounded-lg px-3 py-1.5 bg-white cursor-pointer hover:border-primary-600 transition-colors outline-none"
                                 value={task.status}
                               >
                                 {taskGroups.map(g => <option key={g} value={g}>{g.replace('_', ' ')}</option>)}
                               </select>
                               <button onClick={() => handleDeleteTask(task.id)} className="p-2 text-gray-300 hover:text-red-500 transition-colors">
-                                <Trash2 size={18}/>
+                                <Trash2 size={18} />
                               </button>
                             </div>
                           </td>
@@ -259,11 +275,11 @@ export default function ProjectDetails() {
         </div>
 
         {/* TaskModal Integration with onSuccess callback to trigger fetchData */}
-        <TaskModal 
+        <TaskModal
           isOpen={isTaskModalOpen}
           onClose={() => setIsTaskModalOpen(false)}
           projectId={id}
-          onSuccess={fetchData} 
+          onSuccess={fetchData}
         />
       </div>
     </div>

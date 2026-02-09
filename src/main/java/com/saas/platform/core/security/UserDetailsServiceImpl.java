@@ -19,10 +19,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        // In this multi-tenant setup, email uniqueness is technically (tenant_id + email)
-        // However, for Spring Security login, we use the email as the unique identifier
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        // Multi-tenant aware lookup
+        String tenantId = com.saas.platform.core.middleware.TenantContext.getCurrentTenant();
+        
+        User user;
+        if (tenantId != null) {
+            user = userRepository.findByEmailAndTenantId(email, tenantId)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email + " in tenant: " + tenantId));
+        } else {
+            // Fallback for non-tenant requests (system admin?) or legacy
+            // This might still fail if duplicates exist, but it's better than nothing
+             user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        }
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),

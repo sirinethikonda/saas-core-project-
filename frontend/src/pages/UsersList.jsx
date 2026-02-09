@@ -64,7 +64,7 @@ export default function UsersList() {
             <h1 className="text-4xl font-black text-gray-900 tracking-tight">Team Management</h1>
             <p className="text-gray-400 font-medium">Manage access and roles for your organization.</p>
           </div>
-          <button onClick={() => { setSelectedUser(null); setIsModalOpen(true); }} className="bg-primary text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg hover:bg-blue-700 active:scale-95 transition-all">
+          <button onClick={() => { setSelectedUser(null); setIsModalOpen(true); }} className="bg-primary-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg hover:bg-blue-700 active:scale-95 transition-all">
             <UserPlus size={20} /> Add Member
           </button>
         </div>
@@ -75,7 +75,7 @@ export default function UsersList() {
             <input
               type="text"
               placeholder="Filter by name or email..."
-              className="w-full pl-12 pr-4 py-3 bg-white border border-gray-100 rounded-2xl outline-none shadow-sm focus:ring-2 focus:ring-primary/20 transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-white border border-gray-100 rounded-2xl outline-none shadow-sm focus:ring-2 focus:ring-primary-600/20 transition-all"
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
@@ -89,7 +89,7 @@ export default function UsersList() {
         <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden">
           {loading ? (
             <div className="py-24 flex flex-col items-center gap-4">
-              <Loader2 className="animate-spin text-primary" size={40} />
+              <Loader2 className="animate-spin text-primary-600" size={40} />
               <p className="text-gray-400 font-black uppercase tracking-widest text-[10px]">Syncing Directory...</p>
             </div>
           ) : (
@@ -107,7 +107,7 @@ export default function UsersList() {
                   {filteredUsers.map((u) => (
                     <tr key={u.id} className="hover:bg-gray-50/30 transition-colors group">
                       <td className="p-6 flex items-center gap-4">
-                        <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center font-black">{u.fullName?.charAt(0)}</div>
+                        <div className="w-10 h-10 bg-primary-600/10 text-primary-600 rounded-xl flex items-center justify-center font-black">{u.fullName?.charAt(0)}</div>
                         <div><p className="font-bold text-gray-800">{u.fullName}</p><p className="text-xs text-gray-400">{u.email}</p></div>
                       </td>
                       <td className="p-6 text-[10px] font-black uppercase text-gray-500">{u.role?.replace('_', ' ')}</td>

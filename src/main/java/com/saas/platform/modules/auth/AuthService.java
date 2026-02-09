@@ -63,13 +63,13 @@ public class AuthService {
 
     public ApiResponse<?> login(LoginRequest request) {
         Tenant tenant = tenantRepository.findBySubdomain(request.getTenantSubdomain())
-                .orElseThrow(() -> new RuntimeException("Tenant not found"));
+                .orElseThrow(() -> new com.saas.platform.core.exception.TenantNotFoundException("Tenant not found with subdomain: " + request.getTenantSubdomain()));
 
         User user = userRepository.findByEmailAndTenantId(request.getEmail(), tenant.getId())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+                .orElseThrow(() -> new org.springframework.security.authentication.BadCredentialsException("Invalid credentials"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new org.springframework.security.authentication.BadCredentialsException("Invalid credentials");
         }
 
         String token = jwtService.generateToken(user.getEmail(), user.getTenantId(), user.getRole());
@@ -91,8 +91,11 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
-        Tenant tenant = tenantRepository.findById(user.getTenantId())
-                .orElseThrow(() -> new RuntimeException("Tenant not found"));
+        Tenant tenant = null;
+        if (user.getTenantId() != null) {
+            tenant = tenantRepository.findById(user.getTenantId())
+                .orElseThrow(() -> new com.saas.platform.core.exception.TenantNotFoundException("Tenant not found"));
+        }
 
         Map<String, Object> userData = new HashMap<>();
         userData.put("id", user.getId());

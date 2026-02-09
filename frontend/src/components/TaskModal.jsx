@@ -15,12 +15,12 @@ export default function TaskModal({ isOpen, onClose, projectId, onSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.title.trim()) return setError("Task description is required.");
-    
+
     setLoading(true);
     setError('');
     try {
       await apiClient.post(`/projects/${projectId}/tasks`, form);
-      if (onSuccess) await onSuccess(); 
+      if (onSuccess) await onSuccess();
       onClose();
     } catch (err) {
       console.error("Backend Task Error:", err.response?.data);
@@ -49,13 +49,13 @@ export default function TaskModal({ isOpen, onClose, projectId, onSuccess }) {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 ml-1 tracking-widest">Title</label>
-            <input className="w-full p-4 bg-gray-50 border rounded-2xl outline-primary font-medium" placeholder="Task details..." value={form.title} onChange={e => setForm({...form, title: e.target.value})} required />
+            <input className="w-full p-4 bg-gray-50 border rounded-2xl outline-primary-600 font-medium" placeholder="Task details..." value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 ml-1 tracking-widest">Priority</label>
-              <select className="w-full p-4 bg-gray-50 border rounded-2xl outline-primary font-bold text-gray-600" value={form.priority} onChange={e => setForm({...form, priority: e.target.value})}>
+              <select className="w-full p-4 bg-gray-50 border rounded-2xl outline-primary-600 font-bold text-gray-600" value={form.priority} onChange={e => setForm({ ...form, priority: e.target.value })}>
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
@@ -63,11 +63,11 @@ export default function TaskModal({ isOpen, onClose, projectId, onSuccess }) {
             </div>
             <div>
               <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 ml-1 tracking-widest">Deadline</label>
-              <input type="date" className="w-full p-4 bg-gray-50 border rounded-2xl outline-primary font-bold text-gray-600" value={form.dueDate} onChange={e => setForm({...form, dueDate: e.target.value})} />
+              <input type="date" className="w-full p-4 bg-gray-50 border rounded-2xl outline-primary-600 font-bold text-gray-600" value={form.dueDate} onChange={e => setForm({ ...form, dueDate: e.target.value })} />
             </div>
           </div>
 
-          <button disabled={loading} className="w-full bg-primary text-white p-4 rounded-2xl font-black flex justify-center items-center gap-2 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50">
+          <button disabled={loading} className="w-full bg-primary-600 text-white p-4 rounded-2xl font-black flex justify-center items-center gap-2 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50">
             {loading ? <Loader2 className="animate-spin" size={20} /> : "Publish Task"}
           </button>
         </form>

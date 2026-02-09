@@ -40,14 +40,21 @@ export default function ProjectModal({ isOpen, onClose, onSuccess, project = nul
 
     setLoading(true);
     try {
+      let res;
       if (project) {
         // Requirement 4.3: API Integration - PUT for edit
-        await apiClient.put(`/projects/${project.id}`, form);
+        res = await apiClient.put(`/projects/${project.id}`, form);
       } else {
         // Requirement 4.3: API Integration - POST for create
-        await apiClient.post('/projects', form);
+        res = await apiClient.post('/projects', form);
       }
-      
+
+      // Fix: Handle 200 OK responses with success: false (Business Logic Errors)
+      if (res.data && res.data.success === false) {
+        setError(res.data.message);
+        return;
+      }
+
       onSuccess(); // Refresh the list in parent component
       onClose();   // Close modal on success
     } catch (err) {
@@ -64,7 +71,7 @@ export default function ProjectModal({ isOpen, onClose, onSuccess, project = nul
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-gray-100 transform transition-all scale-100">
-        
+
         {/* Requirement 4.3: Header with Close Action */}
         <div className="flex justify-between items-center p-6 border-b border-gray-50 bg-gray-50/50">
           <h2 className="text-2xl font-black text-gray-800 tracking-tight">
@@ -88,13 +95,13 @@ export default function ProjectModal({ isOpen, onClose, onSuccess, project = nul
             <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 ml-1 tracking-widest">
               Project Name *
             </label>
-            <input 
+            <input
               required
               type="text"
               className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all font-medium"
               placeholder="e.g. Website Redesign"
               value={form.name}
-              onChange={e => setForm({...form, name: e.target.value})}
+              onChange={e => setForm({ ...form, name: e.target.value })}
             />
           </div>
 
@@ -102,12 +109,12 @@ export default function ProjectModal({ isOpen, onClose, onSuccess, project = nul
             <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 ml-1 tracking-widest">
               Description
             </label>
-            <textarea 
+            <textarea
               rows="3"
               className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all font-medium resize-none"
               placeholder="Briefly describe the goals..."
               value={form.description}
-              onChange={e => setForm({...form, description: e.target.value})}
+              onChange={e => setForm({ ...form, description: e.target.value })}
             />
           </div>
 
@@ -115,10 +122,10 @@ export default function ProjectModal({ isOpen, onClose, onSuccess, project = nul
             <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 ml-1 tracking-widest">
               Status
             </label>
-            <select 
+            <select
               className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-600 font-bold text-gray-600 cursor-pointer appearance-none"
               value={form.status}
-              onChange={e => setForm({...form, status: e.target.value})}
+              onChange={e => setForm({ ...form, status: e.target.value })}
             >
               <option value="active">Active</option>
               <option value="completed">Completed</option>
@@ -128,17 +135,17 @@ export default function ProjectModal({ isOpen, onClose, onSuccess, project = nul
 
           {/* Requirement 4.3: Action Buttons */}
           <div className="flex gap-4 pt-4">
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={onClose}
               className="flex-1 px-6 py-4 rounded-2xl font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 transition-all"
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
-              className="flex-1 px-6 py-4 rounded-2xl font-bold text-white bg-blue-600 shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all flex justify-center items-center gap-2 disabled:opacity-50"
+              className="flex-1 px-6 py-4 rounded-2xl font-bold text-white bg-primary-600 shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all flex justify-center items-center gap-2 disabled:opacity-50"
             >
               {loading ? (
                 <Loader2 className="animate-spin" size={20} />

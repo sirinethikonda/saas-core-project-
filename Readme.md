@@ -199,4 +199,18 @@ Common payloads for testing via **Postman** or **cURL**.
 
 ---
 
+## 📚 Project Documentation
+
+The `docs/` folder contains detailed technical specifications and design documents:
+
+| Document | Description |
+| :--- | :--- |
+| [**API Reference**](docs/API.md) | Endpoints, authentication flows, and JSON payload examples. |
+| [**Product Requirements (PRD)**](docs/PRD.md) | User personas, functional requirements, and non-functional constraints. |
+| [**System Architecture**](docs/architecture.md) | C4 context diagrams, container architecture, and database ERD. |
+| [**Research & Analysis**](docs/research.md) | Strategic analysis of multi-tenancy approaches and technology stack choices. |
+| [**Technical Specification**](docs/technical-spec.md) | Detailed folder structure, development setup, and environment configuration. |
+
+---
+
 

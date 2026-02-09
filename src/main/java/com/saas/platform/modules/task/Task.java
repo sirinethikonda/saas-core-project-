@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "tasks", indexes = {
@@ -20,6 +22,8 @@ public class Task {
     @Column(name = "tenant_id", nullable = false)
     private String tenantId;
 
+    @NotBlank(message = "Task title is required")
+    @Size(min = 3, max = 150, message = "Task title must be between 3 and 150 characters")
     @Column(nullable = false)
     private String title;
 

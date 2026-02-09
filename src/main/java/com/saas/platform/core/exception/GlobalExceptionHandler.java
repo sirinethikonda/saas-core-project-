@@ -27,6 +27,20 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("Access Denied: You do not have the required permissions."));
     }
 
+    // Handle 404 - Resource Not Found
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleResourceNotFound(ResourceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ex.getMessage()));
+    }
+
+    // Handle 401 - Unauthorized (Login Failures)
+    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBadCredentials(org.springframework.security.authentication.BadCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error("Invalid email or password."));
+    }
+
     // Handle 400 - Validation Errors (DTO @Valid failures)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidationErrors(MethodArgumentNotValidException ex) {
@@ -35,8 +49,33 @@ public class GlobalExceptionHandler {
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
         
+        System.err.println("Validation Error: " + errorMessage); // Simple logging
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error("Validation Failed: " + errorMessage));
+    }
+
+    // Handle Generic Bad Request
+    @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMissingParams(Exception ex) {
+        System.err.println("Bad Request (Missing Params): " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error("Bad Request: " + ex.getMessage()));
+    }
+
+    // Handle 400 - Malformed JSON or Missing Body
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMessageNotReadable(Exception ex) {
+        System.err.println("Bad Request (Malformed Body): " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error("Bad Request: Malformed JSON request or missing body"));
+    }
+
+    // Handle 400 - Type Mismatch
+    @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse<Void>> handleTypeMismatch(Exception ex) {
+        System.err.println("Bad Request (Type Mismatch): " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error("Bad Request: Invalid parameter type"));
     }
 
     // Handle 409 - Conflict (Requirement 4: Duplicate emails/subdomains)
@@ -49,6 +88,8 @@ public class GlobalExceptionHandler {
     // Handle 500 - General Errors
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception ex) {
+        System.err.println("Internal Server Error: " + ex.getMessage());
+        ex.printStackTrace(); // Print stack trace for debugging
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Internal Server Error: " + ex.getMessage()));
     }

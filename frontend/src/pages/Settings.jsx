@@ -47,6 +47,12 @@ export default function Settings() {
         fullName: profileForm.fullName
       });
 
+      // Fix: Handle 200 OK responses with success: false
+      if (res.data && res.data.success === false) {
+        setMessage({ type: 'error', text: res.data.message });
+        return;
+      }
+
       // Update local context
       const updatedUser = res.data?.data || res.data;
       if (updatedUser) {
@@ -131,7 +137,7 @@ export default function Settings() {
             </div>
 
             <div className="md:col-span-2">
-              <button disabled={loading} className="bg-primary text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-blue-100 hover:bg-blue-700 transition disabled:opacity-50">
+              <button disabled={loading} className="bg-primary-600 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-blue-100 hover:bg-blue-700 transition disabled:opacity-50">
                 {loading ? <Loader2 className="animate-spin" /> : <><Save size={18} /> Update Profile</>}
               </button>
             </div>

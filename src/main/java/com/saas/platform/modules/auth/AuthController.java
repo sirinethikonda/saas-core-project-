@@ -24,7 +24,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ApiResponse<?> login(@RequestBody LoginRequest request) {
+    public ApiResponse<?> login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
     }
 
@@ -32,6 +32,11 @@ public class AuthController {
     @GetMapping("/me")
     public ApiResponse<?> getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            System.err.println("Error: No authentication found in SecurityContext");
+            throw new org.springframework.security.access.AccessDeniedException("No authentication found");
+        }
+        System.out.println("Processing /me request for: " + auth.getName());
         // auth.getName() returns the email stored in the JWT Subject
         return authService.getCurrentUser(auth.getName());
     }

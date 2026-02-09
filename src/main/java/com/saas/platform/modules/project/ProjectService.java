@@ -28,7 +28,7 @@ public class ProjectService {
         
         // 1. Fetch Tenant to check limits
         Tenant tenant = tenantRepository.findById(tenantId)
-                .orElseThrow(() -> new RuntimeException("Tenant not found"));
+                .orElseThrow(() -> new com.saas.platform.core.exception.TenantNotFoundException("Tenant not found"));
 
         // 2. Enforce Subscription Limits
         long currentProjectCount = projectRepository.countByTenantId(tenantId);
@@ -58,8 +58,11 @@ public class ProjectService {
         List<Project> projects = projectRepository.findAllByTenantId(TenantContext.getCurrentTenant());
         // Populate transient counts
         projects.forEach(p -> {
-            p.setTaskCount(taskRepository.countByProjectId(p.getId()));
-            p.setCompletedTaskCount(taskRepository.countByProjectIdAndStatus(p.getId(), "completed"));
+            long total = taskRepository.countByProjectId(p.getId());
+            long completed = taskRepository.countByProjectIdAndStatusIgnoreCase(p.getId(), "completed");
+            p.setTaskCount(total);
+            p.setCompletedTaskCount(completed);
+            System.out.println("DEBUG: Project " + p.getName() + " -> Tasks: " + total + ", Completed: " + completed);
         });
         return projects;
     }
@@ -67,10 +70,10 @@ public class ProjectService {
     public ApiResponse<?> getProject(String id) {
         String tenantId = TenantContext.getCurrentTenant();
         Project project = projectRepository.findByIdAndTenantId(id, tenantId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new com.saas.platform.core.exception.ResourceNotFoundException("Project not found"));
         
         project.setTaskCount(taskRepository.countByProjectId(id));
-        project.setCompletedTaskCount(taskRepository.countByProjectIdAndStatus(id, "completed"));
+        project.setCompletedTaskCount(taskRepository.countByProjectIdAndStatusIgnoreCase(id, "completed"));
         
         return ApiResponse.success("Project retrieved", project);
     }
@@ -79,7 +82,7 @@ public class ProjectService {
     public ApiResponse<?> updateProject(String id, Project updates, String userId) {
         String tenantId = TenantContext.getCurrentTenant();
         Project existing = projectRepository.findByIdAndTenantId(id, tenantId)
-                .orElseThrow(() -> new RuntimeException("Project not found or unauthorized"));
+                .orElseThrow(() -> new com.saas.platform.core.exception.ResourceNotFoundException("Project not found or unauthorized"));
 
         if (updates.getName() != null) existing.setName(updates.getName());
         if (updates.getDescription() != null) existing.setDescription(updates.getDescription());
@@ -97,7 +100,7 @@ public class ProjectService {
     public ApiResponse<?> deleteProject(String id, String userId) {
         String tenantId = TenantContext.getCurrentTenant();
         Project project = projectRepository.findByIdAndTenantId(id, tenantId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new com.saas.platform.core.exception.ResourceNotFoundException("Project not found"));
         
         projectRepository.delete(project);
         

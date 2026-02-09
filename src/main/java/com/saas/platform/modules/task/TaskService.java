@@ -26,22 +26,16 @@ public class TaskService {
     public ApiResponse<?> createTask(String projectId, Task task) {
         // 1. Fetch the project
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new com.saas.platform.core.exception.ResourceNotFoundException("Project not found"));
 
-        // 2. DEBUG LOGGING (Check your STS Console after sending the request)
-        System.out.println("DEBUG: Project Tenant ID -> " + project.getTenantId());
-        System.out.println("DEBUG: Assigned User ID -> " + task.getAssignedTo());
-
-     // Inside createTask method
         if (task.getAssignedTo() != null) {
             User assignedUser = userRepository.findById(task.getAssignedTo())
-                    .orElseThrow(() -> new RuntimeException("Assigned user not found"));
+                    .orElseThrow(() -> new com.saas.platform.core.exception.ResourceNotFoundException("Assigned user not found"));
 
-            // Robust comparison using trim and ignoreCase
-            String userTenant = assignedUser.getTenantId().trim();
-            String projectTenant = project.getTenantId().trim();
-
-            if (!userTenant.equalsIgnoreCase(projectTenant)) {
+            String userTenant = assignedUser.getTenantId();
+            String projectTenant = project.getTenantId();
+            
+            if (userTenant == null || projectTenant == null || !userTenant.trim().equalsIgnoreCase(projectTenant.trim())) {
                 return ApiResponse.error("Assigned user does not belong to your organization");
             }
         }
@@ -64,7 +58,7 @@ public class TaskService {
     // API 18: Update Task Status (PATCH)
     public ApiResponse<?> updateTaskStatus(String taskId, String status) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new com.saas.platform.core.exception.ResourceNotFoundException("Task not found"));
         
         task.setStatus(status);
         taskRepository.save(task);
@@ -75,7 +69,7 @@ public class TaskService {
     // API 19: Full Task Update
     public ApiResponse<?> updateTask(String taskId, Task updates) {
         Task existingTask = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new com.saas.platform.core.exception.ResourceNotFoundException("Task not found"));
 
         if (updates.getTitle() != null) existingTask.setTitle(updates.getTitle());
         if (updates.getPriority() != null) existingTask.setPriority(updates.getPriority());
@@ -91,5 +85,17 @@ public class TaskService {
         String tenantId = com.saas.platform.core.middleware.TenantContext.getCurrentTenant();
         List<Task> tasks = taskRepository.findAllByTenantId(tenantId);
         return ApiResponse.success("All tasks retrieved", tasks);
+    }
+
+    // API 21: Delete Task
+    @Transactional
+    public ApiResponse<?> deleteTask(String taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new com.saas.platform.core.exception.ResourceNotFoundException("Task not found"));
+        
+        taskRepository.delete(task);
+        auditLogger.log("DELETE_TASK", "Task ID " + taskId + " deleted");
+        
+        return ApiResponse.success("Task deleted successfully", null);
     }
 }
