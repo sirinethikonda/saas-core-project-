@@ -91,10 +91,15 @@ public class TenantService {
     }
 
     private void updatePlanLimits(Tenant tenant, String plan) {
-        switch (plan.toLowerCase()) {
-            case "pro" -> { tenant.setMaxUsers(25); tenant.setMaxProjects(15); }
-            case "enterprise" -> { tenant.setMaxUsers(100); tenant.setMaxProjects(50); }
-            default -> { tenant.setMaxUsers(5); tenant.setMaxProjects(3); }
+        if (plan.equalsIgnoreCase("pro")) {
+            tenant.setMaxUsers(25);
+            tenant.setMaxProjects(15);
+        } else if (plan.equalsIgnoreCase("enterprise")) {
+            tenant.setMaxUsers(100);
+            tenant.setMaxProjects(50);
+        } else {
+            tenant.setMaxUsers(5);
+            tenant.setMaxProjects(3);
         }
     }
 }

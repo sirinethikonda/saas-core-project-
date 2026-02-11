@@ -5,6 +5,11 @@ import com.saas.platform.core.middleware.AuditLogger;
 import com.saas.platform.core.middleware.TenantContext;
 import com.saas.platform.modules.tenant.Tenant;
 import com.saas.platform.modules.tenant.TenantRepository;
+import com.saas.platform.modules.task.TaskRepository;
+import com.saas.platform.modules.project.ProjectRepository;
+import com.saas.platform.core.security.SecurityUtils;
+import com.saas.platform.core.exception.ResourceNotFoundException;
+import com.saas.platform.core.exception.TenantNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +25,7 @@ public class ProjectService {
     private final TenantRepository tenantRepository;
     private final AuditLogger auditLogger;
 
-    private final com.saas.platform.modules.task.TaskRepository taskRepository;
+    private final TaskRepository taskRepository;
 
     @Transactional
     public ApiResponse<?> createProject(Project project, String userId) {
@@ -28,7 +33,7 @@ public class ProjectService {
         
         // 1. Fetch Tenant to check limits
         Tenant tenant = tenantRepository.findById(tenantId)
-                .orElseThrow(() -> new com.saas.platform.core.exception.TenantNotFoundException("Tenant not found"));
+                .orElseThrow(() -> new TenantNotFoundException("Tenant not found"));
 
         // 2. Enforce Subscription Limits
         long currentProjectCount = projectRepository.countByTenantId(tenantId);
@@ -56,7 +61,7 @@ public class ProjectService {
 
     public List<Project> listAllProjects() {
         // Super Admin: View ALL projects
-        if (com.saas.platform.core.security.SecurityUtils.hasRole("ROLE_super_admin")) {
+        if (SecurityUtils.hasRole("ROLE_super_admin")) {
              List<Project> allProjects = projectRepository.findAll();
              allProjects.forEach(this::populateTaskCounts);
              return allProjects;
@@ -78,7 +83,7 @@ public class ProjectService {
     public ApiResponse<?> getProject(String id) {
         String tenantId = TenantContext.getCurrentTenant();
         Project project = projectRepository.findByIdAndTenantId(id, tenantId)
-                .orElseThrow(() -> new com.saas.platform.core.exception.ResourceNotFoundException("Project not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         
         project.setTaskCount(taskRepository.countByProjectId(id));
         project.setCompletedTaskCount(taskRepository.countByProjectIdAndStatusIgnoreCase(id, "completed"));
@@ -90,7 +95,7 @@ public class ProjectService {
     public ApiResponse<?> updateProject(String id, Project updates, String userId) {
         String tenantId = TenantContext.getCurrentTenant();
         Project existing = projectRepository.findByIdAndTenantId(id, tenantId)
-                .orElseThrow(() -> new com.saas.platform.core.exception.ResourceNotFoundException("Project not found or unauthorized"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found or unauthorized"));
 
         if (updates.getName() != null) existing.setName(updates.getName());
         if (updates.getDescription() != null) existing.setDescription(updates.getDescription());
@@ -108,7 +113,7 @@ public class ProjectService {
     public ApiResponse<?> deleteProject(String id, String userId) {
         String tenantId = TenantContext.getCurrentTenant();
         Project project = projectRepository.findByIdAndTenantId(id, tenantId)
-                .orElseThrow(() -> new com.saas.platform.core.exception.ResourceNotFoundException("Project not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         
         projectRepository.delete(project);
         

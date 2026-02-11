@@ -5,13 +5,16 @@ import com.saas.platform.core.middleware.AuditLogger;
 import com.saas.platform.core.middleware.TenantContext;
 import com.saas.platform.modules.project.Project;
 import com.saas.platform.modules.project.ProjectRepository;
+import com.saas.platform.modules.user.User; 
 import com.saas.platform.modules.user.UserRepository;
+import com.saas.platform.core.exception.ResourceNotFoundException;
+import com.saas.platform.core.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.UUID;
-import java.util.List;
-import com.saas.platform.modules.user.User; 
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +31,7 @@ public class TaskService {
 
         // 1. Fetch the project with Tenant Isolation check
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new com.saas.platform.core.exception.ResourceNotFoundException("Project not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         
         if (!project.getTenantId().equals(currentTenantId)) {
             return ApiResponse.error("Unauthorized: Project belongs to another organization");
@@ -36,7 +39,7 @@ public class TaskService {
 
         if (task.getAssignedTo() != null) {
             User assignedUser = userRepository.findById(task.getAssignedTo())
-                    .orElseThrow(() -> new com.saas.platform.core.exception.ResourceNotFoundException("Assigned user not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Assigned user not found"));
 
             String userTenant = assignedUser.getTenantId();
             
@@ -62,7 +65,7 @@ public class TaskService {
         
         // Verify project existence and ownership
         Project project = projectRepository.findById(projectId)
-                 .orElseThrow(() -> new com.saas.platform.core.exception.ResourceNotFoundException("Project not found"));
+                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
         if (!project.getTenantId().equals(currentTenantId)) {
              return ApiResponse.error("Unauthorized: Project belongs to another organization");
@@ -77,7 +80,7 @@ public class TaskService {
         String currentTenantId = TenantContext.getCurrentTenant();
         
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new com.saas.platform.core.exception.ResourceNotFoundException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
         
         if (!task.getTenantId().equals(currentTenantId)) {
             return ApiResponse.error("Unauthorized: Task belongs to another organization");
@@ -94,7 +97,7 @@ public class TaskService {
         String currentTenantId = TenantContext.getCurrentTenant();
         
         Task existingTask = taskRepository.findById(taskId)
-                .orElseThrow(() -> new com.saas.platform.core.exception.ResourceNotFoundException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         if (!existingTask.getTenantId().equals(currentTenantId)) {
             return ApiResponse.error("Unauthorized: Task belongs to another organization");
@@ -112,7 +115,7 @@ public class TaskService {
 
     // API 20: List All Tasks (Global for Super Admin, Tenant-scoped for others)
     public ApiResponse<?> getAllTasks() {
-        if (com.saas.platform.core.security.SecurityUtils.hasRole("ROLE_super_admin")) {
+        if (SecurityUtils.hasRole("ROLE_super_admin")) {
             return ApiResponse.success("All system tasks retrieved", taskRepository.findAll());
         }
 
@@ -127,7 +130,7 @@ public class TaskService {
         String currentTenantId = TenantContext.getCurrentTenant();
         
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new com.saas.platform.core.exception.ResourceNotFoundException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
         
         if (!task.getTenantId().equals(currentTenantId)) {
             return ApiResponse.error("Unauthorized: Task belongs to another organization");
