@@ -102,22 +102,22 @@ sequenceDiagram
 ### **Core Workspaces**
 | Intelligence Dashboard | Project Hub | Task Kanban |
 |:---:|:---:|:---:|
-| ![Dashboard](screenshots/dashboard.png) | ![Projects](docs/screenshots/projects_grid.png) | ![Tasks](screenshots/all_tasks.png) |
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Projects](docs/screenshots/projects_grid.png) | ![Tasks](docs/screenshots/all_tasks.png) |
 
 ### **Administration & Profile**
 | Team Board | User Settings | Security Center |
 |:---:|:---:|:---:|
-| ![Team](screenshots/team_management.png) | ![Profile](screenshots/settings_profile.png) | ![Security](screenshots/settings_security.png) |
+| ![Team](docs/screenshots/team_management.png) | ![Profile](docs/screenshots/settings_profile.png) | ![Security](docs/screenshots/settings_security.png) |
 
 ### **Interactive Modals**
 | Project Creation | Task Assignment | Member Onboarding |
 |:---:|:---:|:---:|
-| ![New](screenshots/new_project_modal.png) | ![Assign](screenshots/assign_task_modal.png) | ![Invite](screenshots/add_member_modal.png) |
+| ![New](docs/screenshots/new_project_modal.png) | ![Assign](docs/screenshots/assign_task_modal.png) | ![Invite](docs/screenshots/add_member_modal.png) |
 
 ### **Authentication**
 | Secure Login | Organization Registration |
 |:---:|:---:|
-| ![Login](screenshots/login.png) | ![Register](screenshots/register.png) |
+| ![Login](docs/screenshots/login.png) | ![Register](docs/screenshots/register.png) |
 
 ---
 
