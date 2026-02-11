@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.saas.platform.core.common.ApiResponse;
@@ -50,9 +51,10 @@ public class TenantController {
     // API 7: List All Tenants (Super Admin Only)
     @GetMapping
     @PreAuthorize("hasRole('ROLE_super_admin')")
-    public ApiResponse<?> listAllTenants() {
-        // Business Logic Requirement: Only super_admin can see this list
-        return ApiResponse.success("Feature coming soon for super_admin", null);
+    public ApiResponse<?> listAllTenants(
+            @RequestParam(defaultValue = "1") int page, 
+            @RequestParam(defaultValue = "10") int limit) {
+        return tenantService.getAllTenants(page, limit);
     }
 
     // Helper to extract role without [ROLE_] prefix for service logic

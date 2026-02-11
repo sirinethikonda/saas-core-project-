@@ -10,6 +10,7 @@ import UsersList from './pages/UsersList';
 import Settings from './pages/Settings';
 import Tasks from './pages/Tasks';
 import UserModal from './components/UserModal';
+import Tenants from './pages/Tenants';
 
 
 const PrivateLayout = () => (
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="/users" element={<UsersList />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Settings />} />
+          <Route path="/tenants" element={<Tenants />} />
         </Route>
 
         <Route path="/" element={<Navigate to="/login" replace />} />

@@ -7,12 +7,12 @@
 *   **Auth:** Public
 *   **Body:**
     ```json
-   {
-    "tenantName": "Sri Corp",
-    "subdomain": "srinih",
-    "adminFullName": "Siri",
-    "adminEmail": "kondasri@gmail.com",
-    "adminPassword": "KondaSri@321"
+    {
+     "tenantName": "Sri Corp",
+     "subdomain": "srinih",
+     "adminFullName": "Siri",
+     "adminEmail": "kondasri@gmail.com",
+     "adminPassword": "KondaSri@321"
     }
     ```
 *   **Response (201 Created):**

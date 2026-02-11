@@ -55,16 +55,24 @@ public class ProjectService {
     }
 
     public List<Project> listAllProjects() {
+        // Super Admin: View ALL projects
+        if (com.saas.platform.core.security.SecurityUtils.hasRole("ROLE_super_admin")) {
+             List<Project> allProjects = projectRepository.findAll();
+             allProjects.forEach(this::populateTaskCounts);
+             return allProjects;
+        }
+
+        // Regular User: View Tenant projects
         List<Project> projects = projectRepository.findAllByTenantId(TenantContext.getCurrentTenant());
-        // Populate transient counts
-        projects.forEach(p -> {
-            long total = taskRepository.countByProjectId(p.getId());
-            long completed = taskRepository.countByProjectIdAndStatusIgnoreCase(p.getId(), "completed");
-            p.setTaskCount(total);
-            p.setCompletedTaskCount(completed);
-            System.out.println("DEBUG: Project " + p.getName() + " -> Tasks: " + total + ", Completed: " + completed);
-        });
+        projects.forEach(this::populateTaskCounts);
         return projects;
+    }
+
+    private void populateTaskCounts(Project p) {
+        long total = taskRepository.countByProjectId(p.getId());
+        long completed = taskRepository.countByProjectIdAndStatusIgnoreCase(p.getId(), "completed");
+        p.setTaskCount(total);
+        p.setCompletedTaskCount(completed);
     }
     
     public ApiResponse<?> getProject(String id) {

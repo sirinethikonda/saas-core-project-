@@ -30,60 +30,63 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        if (userRepository.count() > 0) {
-            System.out.println("Database already seeded. Skipping...");
-            return;
+        // 1. Ensure Super Admin Exists
+        if (userRepository.findByEmail("superadmin@system.com").isEmpty()) {
+            System.out.println("Seeding Super Admin...");
+            User superAdmin = new User();
+            superAdmin.setId(UUID.randomUUID().toString());
+            superAdmin.setEmail("superadmin@system.com");
+            superAdmin.setPasswordHash(passwordEncoder.encode("Admin@123"));
+            superAdmin.setFullName("System Super Admin");
+            superAdmin.setRole("super_admin");
+            superAdmin.setIsActive(true);
+            superAdmin.setTenantId(null);
+            userRepository.save(superAdmin);
         }
 
-        System.out.println("Seeding database...");
+        // 2. Ensuring Demo Tenant exists (idempotent seed)
+        Tenant demoTenant;
+        if (tenantRepository.count() == 0) {
+            System.out.println("Seeding Demo Tenant...");
 
-        // 1. Create Super Admin
-        User superAdmin = new User();
-        superAdmin.setId(UUID.randomUUID().toString());
-        superAdmin.setEmail("superadmin@system.com");
-        superAdmin.setFullName("System Super Admin");
-        superAdmin.setPasswordHash(passwordEncoder.encode("Admin@123"));
-        superAdmin.setRole("super_admin");
-        superAdmin.setIsActive(true);
-        superAdmin.setTenantId(null); // Super admin has no tenant
-        userRepository.save(superAdmin);
+            demoTenant = new Tenant();
+            demoTenant.setId(UUID.randomUUID().toString());
+            demoTenant.setName("Demo Company");
+            demoTenant.setSubdomain("demo");
+            demoTenant.setStatus("active");
+            demoTenant.setSubscriptionPlan("pro");
+            demoTenant.setMaxUsers(25);
+            demoTenant.setMaxProjects(15);
+            tenantRepository.save(demoTenant);
 
-        // 2. Create Demo Tenant
-        Tenant demoTenant = new Tenant();
-        demoTenant.setId(UUID.randomUUID().toString());
-        demoTenant.setName("Demo Company");
-        demoTenant.setSubdomain("demo");
-        demoTenant.setStatus("active");
-        demoTenant.setSubscriptionPlan("pro");
-        demoTenant.setMaxUsers(25);
-        demoTenant.setMaxProjects(15);
-        tenantRepository.save(demoTenant);
+            // 3. Create Tenant Admin
+            User tenantAdmin = new User();
+            tenantAdmin.setId(UUID.randomUUID().toString());
+            tenantAdmin.setTenantId(demoTenant.getId());
+            tenantAdmin.setEmail("admin@demo.com");
+            tenantAdmin.setFullName("Demo Admin");
+            tenantAdmin.setPasswordHash(passwordEncoder.encode("Demo@123"));
+            tenantAdmin.setRole("tenant_admin");
+            tenantAdmin.setIsActive(true);
+            userRepository.save(tenantAdmin);
 
-        // 3. Create Tenant Admin
-        User tenantAdmin = new User();
-        tenantAdmin.setId(UUID.randomUUID().toString());
-        tenantAdmin.setTenantId(demoTenant.getId());
-        tenantAdmin.setEmail("admin@demo.com");
-        tenantAdmin.setFullName("Demo Admin");
-        tenantAdmin.setPasswordHash(passwordEncoder.encode("Demo@123"));
-        tenantAdmin.setRole("tenant_admin");
-        tenantAdmin.setIsActive(true);
-        userRepository.save(tenantAdmin);
+            // 4. Create Regular Users
+            User user1 = createUser(demoTenant.getId(), "user1@demo.com", "User One");
+            User user2 = createUser(demoTenant.getId(), "user2@demo.com", "User Two");
 
-        // 4. Create Regular Users
-        User user1 = createUser(demoTenant.getId(), "user1@demo.com", "User One");
-        User user2 = createUser(demoTenant.getId(), "user2@demo.com", "User Two");
+            // 5. Create Projects
+            Project projectAlpha = createProject(demoTenant.getId(), tenantAdmin.getId(), "Project Alpha", "First demo project");
+            Project projectBeta = createProject(demoTenant.getId(), tenantAdmin.getId(), "Project Beta", "Second demo project");
 
-        // 5. Create Projects
-        Project projectAlpha = createProject(demoTenant.getId(), tenantAdmin.getId(), "Project Alpha", "First demo project");
-        Project projectBeta = createProject(demoTenant.getId(), tenantAdmin.getId(), "Project Beta", "Second demo project");
+            // 6. Create Tasks
+            createTask(projectAlpha, demoTenant.getId(), "Setup Environment", "low", user1.getId());
+            createTask(projectAlpha, demoTenant.getId(), "Design DB Schema", "high", user1.getId());
+            createTask(projectBeta, demoTenant.getId(), "Frontend Mockups", "medium", user2.getId());
 
-        // 6. Create Tasks
-        createTask(projectAlpha, demoTenant.getId(), "Setup Environment", "low", user1.getId());
-        createTask(projectAlpha, demoTenant.getId(), "Design DB Schema", "high", user1.getId());
-        createTask(projectBeta, demoTenant.getId(), "Frontend Mockups", "medium", user2.getId());
-
-        System.out.println("Database seeding completed successfully.");
+            System.out.println("Database seeding completed successfully.");
+        } else {
+             System.out.println("Tenants already exist. Skipping demo data seeding.");
+        }
     }
 
     private User createUser(String tenantId, String email, String fullName) {

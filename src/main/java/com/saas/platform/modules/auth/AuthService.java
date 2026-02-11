@@ -62,6 +62,35 @@ public class AuthService {
     }
 
     public ApiResponse<?> login(LoginRequest request) {
+        // 1. Check for Super Admin first (Global lookup)
+        // This allows Super Admin to login even if the provided subdomain doesn't exist
+        // or if they don't belong to a tenant.
+        var potentialUser = userRepository.findByEmail(request.getEmail());
+        
+        if (potentialUser.isPresent()) {
+            User user = potentialUser.get();
+            if ("super_admin".equals(user.getRole())) {
+                if (passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+                    String token = jwtService.generateToken(user.getEmail(), null, user.getRole());
+                    
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("token", token);
+                    data.put("expiresIn", 86400);
+                    data.put("user", Map.of(
+                        "id", user.getId(),
+                        "email", user.getEmail(),
+                        "role", user.getRole(),
+                        "tenantId", "system" // Return "system" or null, frontend might expect a string
+                    ));
+                    return ApiResponse.success("Login successful", data);
+                }
+                // If password wrong, fall through to standard check or throw bad creds?
+                // Better to throw bad creds here to avoid ambiguity if they *tried* to be super admin
+                throw new org.springframework.security.authentication.BadCredentialsException("Invalid credentials");
+            }
+        }
+
+        // 2. Standard Tenant-Scoped Login
         Tenant tenant = tenantRepository.findBySubdomain(request.getTenantSubdomain())
                 .orElseThrow(() -> new com.saas.platform.core.exception.TenantNotFoundException("Tenant not found with subdomain: " + request.getTenantSubdomain()));
 

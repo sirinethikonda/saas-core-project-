@@ -102,7 +102,7 @@ sequenceDiagram
 ### **Core Workspaces**
 | Intelligence Dashboard | Project Hub | Task Kanban |
 |:---:|:---:|:---:|
-| ![Dashboard](screenshots/dashboard.png) | ![Projects](screenshots/projects_grid.png) | ![Tasks](screenshots/all_tasks.png) |
+| ![Dashboard](screenshots/dashboard.png) | ![Projects](docs/screenshots/projects_grid.png) | ![Tasks](screenshots/all_tasks.png) |
 
 ### **Administration & Profile**
 | Team Board | User Settings | Security Center |
