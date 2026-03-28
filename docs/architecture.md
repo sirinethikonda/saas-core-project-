@@ -10,6 +10,18 @@ The SAAS.CORE platform follows a classic 3-tier architecture, containerized for 
 *   **Application Tier**: Spring Boot backend handling business logic, authentication, and authorization. It is stateless and scales horizontally.
 *   **Data Tier**: MySQL database responsible for persistent storage. It utilizes a shared-schema multi-tenancy model.
 
+### Mermaid Diagram
+```mermaid
+graph TD
+    Client[React SPA] -->|HTTPS/JSON| LB[Load Balancer / Gateway]
+    LB -->|Port 5000| API[Spring Boot API]
+    API -->|JDBC| DB[(MySQL Database)]
+    
+    subgraph "Docker Network"
+        API
+        DB
+    end
+```
 
 ## 2. Database Schema (ERD)
 
