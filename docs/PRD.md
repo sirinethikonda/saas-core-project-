@@ -10,7 +10,11 @@
 
 ## 2. Functional Requirements
 
-
+### Authentication Module
+*   **FR-001**: The system shall allow users to register a new tenant organization with a unique subdomain.
+*   **FR-002**: The system shall allow users to login using email, password, and tenant subdomain.
+*   **FR-003**: The system shall issue a JWT upon successful login containing user ID, tenant ID, and role.
+*   **FR-004**: The system shall enforce a 24-hour expiration policy for authentication tokens.
 
 ### Tenant Management Module
 *   **FR-005**: Super Admins shall be able to view a list of all registered tenants and their subscription status.
