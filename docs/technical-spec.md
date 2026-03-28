@@ -58,15 +58,7 @@ Variables are managed via `.env` file or Docker Compose environment mapping.
     npm run dev
     ```
 
-### Running with Docker (Recommended)
-The entire stack can be launched with a single command:
-```bash
-docker-compose up -d --build
-```
-This will start:
-*   MySQL Database (Port 5432 external -> 3306 internal)
-*   Spring Boot Backend (Port 5000)
-*   React Frontend (Port 3000)
+
 
 ### Testing
 *   **Postman Collection**: Import the provided collection to test API endpoints.
