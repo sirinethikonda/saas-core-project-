@@ -129,21 +129,3 @@
 
 ---
 
-## Task Management
-
-### 16. Create Task
-*   **Endpoint:** `POST /api/projects/{id}/tasks`
-*   **Auth:** Member of Tenant
-*   **Body:** `{ "title": "Fix bug", "assignedTo": "uuid..." }`
-
-### 17. List Tasks
-*   **Endpoint:** `GET /api/projects/{id}/tasks`
-*   **Auth:** Member of Tenant
-
-### 18. Update Task Status
-*   **Endpoint:** `PATCH /api/tasks/{id}/status`
-*   **Body:** `{ "status": "completed" }`
-
-### 19. Update Task
-*   **Endpoint:** `PUT /api/tasks/{id}`
-*   **Body:** Full task object update.
