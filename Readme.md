@@ -1,22 +1,31 @@
 #  SAAS.CORE Platform
 ### Multi-Tenant Project Management System
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Status](https://img.shields.io/badge/status-active-success.svg) ![Java](https://img.shields.io/badge/Java-17-orange) ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2-success) ![React](https://img.shields.io/badge/React-18-blue)
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Status](https://img.shields.io/badge/status-active-success.svg) ![Java](https://img.shields.io/badge/Java-21-orange) ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.4-success) ![React](https://img.shields.io/badge/React-18-blue)
+
 
 **SAAS.CORE** is an enterprise-grade, multi-tenant SaaS solution designed for seamless project and team collaboration. Engineered with a strict data isolation architecture, it ensures secure partitioning across the frontend, API, and database layers.
 
+
 ---
+
+##  Project Demo
+Watch the full platform walkthrough and feature demonstration on YouTube:
+### **[🎥 Watch the Demo Video](https://youtu.be/-05WgYbx8qE)**
+
+---
+
 
 ##  Key Features
 
 | Feature | Description |
 | :--- | :--- |
-| **📊 Dashboard Analytics** | Real-time insights into total projects, task completion rates, and active workspace metrics. |
-| **🔒 Multi-Tenant Security** | Automatic `X-Tenant-ID` injection and validation ensuring strict data isolation per organization. |
-| **📁 Project Workspace** | comprehensive tools for project lifecycle management, from initialization to archiving. |
-| **✅ Kanban Task Manager** | Intuitive task tracking (Todo, In-Progress, Completed) with priority flagging and deadlines. |
-| **👥 RBAC Administration** | Role-Based Access Control allowing Admin/User hierarchies for secure team management. |
-| **🛡️ Activity Auditing** | Detailed audit logs tracking all critical system actions for compliance and security. |
+| ** Dashboard Analytics** | Real-time insights into total projects, task completion rates, and active workspace metrics. |
+| ** Multi-Tenant Security** | Automatic `X-Tenant-ID` injection and validation ensuring strict data isolation per organization. |
+| ** Project Workspace** | comprehensive tools for project lifecycle management, from initialization to archiving. |
+| ** Kanban Task Manager** | Intuitive task tracking (Todo, In-Progress, Completed) with priority flagging and deadlines. |
+| ** RBAC Administration** | Role-Based Access Control allowing Admin/User hierarchies for secure team management. |
+| ** Activity Auditing** | Detailed audit logs tracking all critical system actions for compliance and security. |
 
 ---
 
@@ -40,7 +49,34 @@
 
 ---
 
-## 🏗️ System Architecture
+##  Getting Started
+
+### Prerequisites
+*   Docker Desktop & Docker Compose
+*   Node.js (for local dev)
+
+### Installation
+1.  **Clone & Build**
+    ```bash
+    git clone https://github.com/your-org/saas-core.git
+    cd saas-core
+    docker-compose up --build -d
+    ```
+
+2.  **Access the Platform**
+    *   **Frontend**: [http://localhost:3000](http://localhost:3000)
+    *   **Backend API**: [http://localhost:5000](http://localhost:5000)
+
+3.  **Initial Setup**
+    1.  Go to `http://localhost:3000/register` to create your Organization (Tenant).
+    2.  Login with your Admin credentials.
+    3.  Start creating projects and inviting team members!
+
+---
+
+
+
+##  System Architecture
 
 ### 1. System Context (C4)
 ```mermaid
@@ -97,7 +133,7 @@ sequenceDiagram
 
 ---
 
-## 📸 Application Gallery
+##  Application Gallery
 
 ### **Core Workspaces**
 | Intelligence Dashboard | Project Hub | Task Kanban |
@@ -121,66 +157,36 @@ sequenceDiagram
 
 ---
 
-##  Getting Started
+##  API Evaluation Suite
+**Comprehensive test suite containing all 19 mandatory endpoints.**
 
-### Prerequisites
-*   Docker Desktop & Docker Compose
-*   Node.js (for local dev)
+### 🛠️ Live Testing with Postman
+1.  Import the [saas_core_postman_collection.json](saas_core_postman_collection.json) found in the root directory.
+2.  All 19 endpoints are organized by module (Auth, Tenant, User, Project, Task).
+3.  Seed data is pre-configured to work with these requests immediately.
 
-### Installation
-1.  **Clone & Build**
-    ```bash
-    git clone https://github.com/your-org/saas-core.git
-    cd saas-core
-    docker-compose up --build -d
-    ```
-
-2.  **Access the Platform**
-    *   **Frontend**: [http://localhost:3000](http://localhost:3000)
-    *   **Backend API**: [http://localhost:5000](http://localhost:5000)
-
-3.  **Initial Setup**
-    1.  Go to `http://localhost:3000/register` to create your Organization (Tenant).
-    2.  Login with your Admin credentials.
-    3.  Start creating projects and inviting team members!
-
----
-
-## 🧪 API Developer Guide
-
-Common payloads for testing via **Postman** or **cURL**.
-
-### 1. Register Organization
-**POST** `http://localhost:5000/api/auth/register/tenant`
-```json
-{
-  "name": "Tesla Innovations",
-  "subdomain": "tesla",
-  "adminEmail": "elon@tesla.com",
-  "password": "SecurePassword123!"
-}
-```
-
-### 2. User Login
-**POST** `http://localhost:5000/api/auth/login`
-```json
-{
-  "email": "elon@tesla.com",
-  "password": "SecurePassword123!",
-  "tenantSubdomain": "tesla"
-}
-```
-
-### 3. Create Project
-**POST** `http://localhost:5000/api/projects`
-*(Requires `Authorization: Bearer <token>`)*
-```json
-{
-  "name": "Mars Mission Controller",
-  "description": "Navigation systems for Starship",
-  "status": "active"
-}
-```
+### 📋 Endpoint Summary (Total: 19)
+| Module | Endpoint | Method | Role Required |
+| :--- | :--- | :--- | :--- |
+| **Auth** | `/api/auth/register-tenant` | POST | Public |
+| | `/api/auth/login` | POST | Public |
+| | `/api/auth/me` | GET | Authenticated |
+| | `/api/auth/logout` | POST | Authenticated |
+| **Tenant** | `/api/tenants/{id}` | GET | Admin / Super |
+| | `/api/tenants/{id}` | PUT | Admin / Super |
+| | `/api/tenants` | GET | Super Admin |
+| **User** | `/api/tenants/{id}/users` | POST | Admin |
+| | `/api/tenants/{id}/users` | GET | Member |
+| | `/api/users/{id}` | PUT | Admin / Self |
+| | `/api/users/{id}` | DELETE | Admin |
+| **Project** | `/api/projects` | POST | Member |
+| | `/api/projects` | GET | Member |
+| | `/api/projects/{id}` | PUT | Admin / Lead |
+| | `/api/projects/{id}` | DELETE | Admin / Lead |
+| **Task** | `/api/projects/{id}/tasks` | POST | Member |
+| | `/api/projects/{id}/tasks` | GET | Member |
+| | `/api/tasks/{id}/status` | PATCH | Member |
+| | `/api/tasks/{id}` | PUT | Member |
 
 ---
 
@@ -199,7 +205,7 @@ Common payloads for testing via **Postman** or **cURL**.
 
 ---
 
-## 📚 Project Documentation
+##  Project Documentation
 
 The `docs/` folder contains detailed technical specifications and design documents:
 
@@ -210,6 +216,12 @@ The `docs/` folder contains detailed technical specifications and design documen
 | [**System Architecture**](docs/architecture.md) | C4 context diagrams, container architecture, and database ERD. |
 | [**Research & Analysis**](docs/research.md) | Strategic analysis of multi-tenancy approaches and technology stack choices. |
 | [**Technical Specification**](docs/technical-spec.md) | Detailed folder structure, development setup, and environment configuration. |
+
+
+#
+
+---
+© 2026 Multi-Tenant SaaS Project. All Rights Reserved.
 
 ---
 

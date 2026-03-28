@@ -1,6 +1,7 @@
 package com.saas.platform.modules.task;
 
 import com.saas.platform.core.common.ApiResponse;
+import com.saas.platform.core.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class TaskController {
     // API 16: Create Task
     @PostMapping("/projects/{projectId}/tasks")
     public ApiResponse<?> createTask(@PathVariable String projectId, @Valid @RequestBody Task task) {
-        return taskService.createTask(projectId, task);
+        return taskService.createTask(projectId, task, SecurityUtils.getCurrentUserId());
     }
 
     // API 17: List Project Tasks
@@ -29,13 +30,13 @@ public class TaskController {
     // API 18: Update Task Status (PATCH)
     @PatchMapping("/tasks/{taskId}/status")
     public ApiResponse<?> updateStatus(@PathVariable String taskId, @RequestBody Task statusUpdate) {
-        return taskService.updateTaskStatus(taskId, statusUpdate.getStatus());
+        return taskService.updateTaskStatus(taskId, statusUpdate.getStatus(), SecurityUtils.getCurrentUserId());
     }
 
     // API 19: Update Task (PUT)
     @PutMapping("/tasks/{taskId}")
     public ApiResponse<?> updateTask(@PathVariable String taskId, @Valid @RequestBody Task task) {
-        return taskService.updateTask(taskId, task);
+        return taskService.updateTask(taskId, task, SecurityUtils.getCurrentUserId());
     }
     // API 20: List All Tasks
     @GetMapping("/tasks")
@@ -46,6 +47,6 @@ public class TaskController {
     // API 11: Delete Task
     @DeleteMapping("/tasks/{taskId}")
     public ApiResponse<?> deleteTask(@PathVariable String taskId) {
-        return taskService.deleteTask(taskId);
+        return taskService.deleteTask(taskId, SecurityUtils.getCurrentUserId());
     }
 }

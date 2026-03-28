@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Tenant {
     @Id
-    private String id; // UUID
+    private String id;
 
     @Column(nullable = false)
     private String name;
@@ -22,10 +22,10 @@ public class Tenant {
     private String subdomain;
 
     @Column(nullable = false)
-    private String status; // active, suspended, trial
+    private String status;
 
     @Column(name = "subscription_plan", nullable = false)
-    private String subscriptionPlan; // free, pro, enterprise
+    private String subscriptionPlan;
 
     @Column(name = "max_users", nullable = false)
     private Integer maxUsers;

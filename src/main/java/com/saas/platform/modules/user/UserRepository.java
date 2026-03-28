@@ -11,6 +11,9 @@ public interface UserRepository extends JpaRepository<User, String> {
 	boolean existsByIdAndTenantId(String id, String tenantId);
     // For Login
     Optional<User> findByEmail(String email);
+
+    // Global unique lookup for Super Admin check
+    Optional<User> findFirstByEmailAndRole(String email, String role);
     
     // For Multi-tenant Login validation
     Optional<User> findByEmailAndTenantId(String email, String tenantId);
@@ -23,4 +26,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     
     // For unique email check per tenant
     boolean existsByEmailAndTenantId(String email, String tenantId);
+    
+    // Global email check
+    boolean existsByEmail(String email);
 }

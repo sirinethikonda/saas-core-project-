@@ -47,7 +47,7 @@ public class TenantService {
 
     // API 6: Update Tenant (Audit Log & Field Restrictions)
     @Transactional
-    public ApiResponse<?> updateTenant(String id, Map<String, Object> updates, String userRole, String currentUserTenantId) {
+    public ApiResponse<?> updateTenant(String id, Map<String, Object> updates, String userRole, String currentUserTenantId, String currentUserId) {
         if (!id.equals(currentUserTenantId) && !"super_admin".equals(userRole)) {
             return ApiResponse.error("Unauthorized: Update access denied.");
         }
@@ -79,7 +79,7 @@ public class TenantService {
         Tenant savedTenant = tenantRepository.save(tenant);
         
         // Requirement 6: Audit log the update
-        auditLogger.log("UPDATE_TENANT", "Tenant ID " + id + " updated by role: " + userRole);
+        auditLogger.log("UPDATE_TENANT", "tenant", id, currentUserId, "Tenant ID " + id + " updated by role: " + userRole);
 
         return ApiResponse.success("Tenant updated", savedTenant);
     }

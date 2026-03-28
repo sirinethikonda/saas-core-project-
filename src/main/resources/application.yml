@@ -4,7 +4,7 @@ server:
 spring:
   datasource:
     # Remove 'saas_db' default to ensure it pulls from environment
-    url: jdbc:mysql://${DB_HOST:database}:3306/${DB_NAME}?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+    url: jdbc:mysql://${DB_HOST:database}:5432/${DB_NAME}?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
     username: ${DB_USER}
     password: ${DB_PASSWORD} 
     driver-class-name: com.mysql.cj.jdbc.Driver

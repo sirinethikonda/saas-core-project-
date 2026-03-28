@@ -1,5 +1,6 @@
 package com.saas.platform.core.security;
 
+import com.saas.platform.core.middleware.TenantContext;
 import com.saas.platform.modules.user.User;
 import com.saas.platform.modules.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         // Multi-tenant aware lookup
-        String tenantId = com.saas.platform.core.middleware.TenantContext.getCurrentTenant();
+        String tenantId = TenantContext.getCurrentTenant();
         
         User user;
         if (tenantId != null) {
@@ -28,15 +29,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email + " in tenant: " + tenantId));
         } else {
             // Fallback for non-tenant requests (system admin?) or legacy
-            // This might still fail if duplicates exist, but it's better than nothing
              user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
         }
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPasswordHash(),
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
-        );
+        return CustomUserDetails.builder()
+                .userId(user.getId())
+                .email(user.getEmail())
+                .password(user.getPasswordHash())
+                .tenantId(user.getTenantId())
+                .authorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole())))
+                .build();
     }
 }

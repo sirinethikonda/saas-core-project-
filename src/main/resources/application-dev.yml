@@ -1,7 +1,7 @@
 spring:
   datasource:
     # Remove 'Siri' and other defaults to ensure it pulls from environment
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3307}/${DB_NAME}?allowPublicKeyRetrieval=true&useSSL=false
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME}?allowPublicKeyRetrieval=true&useSSL=false
     username: ${DB_USER}
     password: ${DB_PASSWORD} 
   

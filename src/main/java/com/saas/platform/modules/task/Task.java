@@ -1,7 +1,9 @@
 package com.saas.platform.modules.task;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import jakarta.validation.constraints.NotBlank;
@@ -12,6 +14,8 @@ import jakarta.validation.constraints.Size;
     @Index(name = "idx_task_tenant_project", columnList = "tenant_id, project_id")
 })
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Task {
     @Id
     private String id;
@@ -30,11 +34,11 @@ public class Task {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private String status; // todo, in_progress, completed
-    private String priority; // low, medium, high
+    private String status;
+    private String priority;
 
     @Column(name = "assigned_to")
-    private String assignedTo; // User UUID
+    private String assignedTo;
 
     @Column(name = "due_date")
     private LocalDate dueDate;

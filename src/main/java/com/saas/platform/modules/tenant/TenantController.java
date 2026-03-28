@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.saas.platform.core.common.ApiResponse;
 import com.saas.platform.core.middleware.TenantContext;
+import com.saas.platform.core.security.SecurityUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,7 +29,7 @@ public class TenantController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ROLE_super_admin', 'ROLE_tenant_admin')")
     public ApiResponse<?> getTenant(@PathVariable String id) {
-        String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUserId = SecurityUtils.getCurrentUserId();
         String currentTenantId = TenantContext.getCurrentTenant();
         String userRole = getRoleFromContext();
 
@@ -42,10 +43,11 @@ public class TenantController {
             @PathVariable String id, 
             @RequestBody Map<String, Object> updates) {
         
+        String currentUserId = SecurityUtils.getCurrentUserId();
         String currentTenantId = TenantContext.getCurrentTenant();
         String userRole = getRoleFromContext();
 
-        return tenantService.updateTenant(id, updates, userRole, currentTenantId);
+        return tenantService.updateTenant(id, updates, userRole, currentTenantId, currentUserId);
     }
 
     // API 7: List All Tenants (Super Admin Only)

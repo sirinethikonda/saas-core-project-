@@ -1,7 +1,9 @@
 package com.saas.platform.modules.project;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -9,9 +11,11 @@ import jakarta.validation.constraints.Size;
 @Entity
 @Table(name = "projects")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Project {
     @Id
-    private String id; // UUID
+    private String id;
 
     @Column(name = "tenant_id", nullable = false)
     private String tenantId;
@@ -25,10 +29,10 @@ public class Project {
     private String description;
 
     @Column(nullable = false)
-    private String status; // active, archived, completed
+    private String status;
 
     @Column(name = "created_by")
-    private String createdBy; // User ID
+    private String createdBy;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

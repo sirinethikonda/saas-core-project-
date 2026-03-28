@@ -8,11 +8,11 @@
 *   **Body:**
     ```json
     {
-     "tenantName": "Sri Corp",
-     "subdomain": "srinih",
-     "adminFullName": "Siri",
-     "adminEmail": "Email",
-     "adminPassword": "Password"
+      "tenantName": "Sri Innovations",
+      "subdomain": "sri-innovations",
+      "adminFullName": "Konda Sri",
+      "adminEmail": "KondaSri@gmail.com",
+      "adminPassword": "SecurePassword123!"
     }
     ```
 *   **Response (201 Created):**
@@ -30,9 +30,9 @@
 *   **Body:**
     ```json
      {
-      "email": "Email",
-      "password": "Password",
-      "tenantSubdomain": "srinih"
+      "email": "KondaSri@gmail.com",
+      "password": "SecurePassword123!",
+      "tenantSubdomain": "sri-innovations"
     }
     ```
 *   **Response (200 OK):**
@@ -85,9 +85,9 @@
 *   **Body:**
     ```json
     {
-      "email": "User_Email",
-      "fullName": "SiriNethi",
-      "password": "User_Password",
+      "email": "member1@sri-innovations.com",
+      "fullName": "Konda Sri",
+      "password": "UserPass123!",
       "role": "user"
     }
     ```

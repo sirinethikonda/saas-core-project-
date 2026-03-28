@@ -54,7 +54,7 @@ public class ProjectService {
         savedProject.setCompletedTaskCount(0);
 
         // 4. Audit Log
-        auditLogger.log("CREATE_PROJECT", "Project created: " + project.getName() + " by " + userId);
+        auditLogger.log("CREATE_PROJECT", "project", project.getId(), userId, "Project created: " + project.getName() + " by " + userId);
 
         return ApiResponse.success("Project created successfully", savedProject);
     }
@@ -104,7 +104,7 @@ public class ProjectService {
         Project updated = projectRepository.save(existing);
         
         // FIXED: Changed from 5 arguments to 2 strings
-        auditLogger.log("UPDATE_PROJECT", "Project ID " + id + " updated by user " + userId);
+        auditLogger.log("UPDATE_PROJECT", "project", id, userId, "Project ID " + id + " updated by user " + userId);
         
         return ApiResponse.success("Project updated successfully", updated);
     }
@@ -118,7 +118,7 @@ public class ProjectService {
         projectRepository.delete(project);
         
         // FIXED: Changed from 5 arguments to 2 strings
-        auditLogger.log("DELETE_PROJECT", "Project ID " + id + " deleted by user " + userId);
+        auditLogger.log("DELETE_PROJECT", "project", id, userId, "Project ID " + id + " deleted by user " + userId);
         
         return ApiResponse.success("Project deleted successfully", null);
     }

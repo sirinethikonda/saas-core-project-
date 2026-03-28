@@ -1,7 +1,9 @@
 package com.saas.platform.modules.user;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
@@ -9,12 +11,14 @@ import java.time.LocalDateTime;
     @UniqueConstraint(columnNames = {"tenant_id", "email"})
 })
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
-    private String id; // UUID
+    private String id;
 
     @Column(name = "tenant_id")
-    private String tenantId; // NULL for super_admin
+    private String tenantId;
 
     @Column(nullable = false)
     private String email;
@@ -26,9 +30,7 @@ public class User {
     private String fullName;
 
     @Column(nullable = false)
-    private String role; // super_admin, tenant_admin, user
-
-
+    private String role;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -40,7 +42,7 @@ public class User {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-    
+
     @Transient
     private String password;
 

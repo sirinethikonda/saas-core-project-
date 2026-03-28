@@ -1,8 +1,10 @@
 package com.saas.platform.modules.auth;
 
 import com.saas.platform.core.common.ApiResponse;
+import com.saas.platform.core.security.CustomUserDetails;
+import com.saas.platform.core.security.SecurityUtils;
 import com.saas.platform.modules.auth.dto.LoginRequest;
-import com.saas.platform.modules.auth.dto.TentantRegisterRequest;
+import com.saas.platform.modules.auth.dto.TenantRegisterRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,7 +21,7 @@ public class AuthController {
 
     @PostMapping("/register-tenant")
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<?> register(@Valid @RequestBody TentantRegisterRequest request) {
+    public ApiResponse<?> register(@Valid @RequestBody TenantRegisterRequest request) {
         return authService.registerTenant(request);
     }
 
@@ -28,17 +30,14 @@ public class AuthController {
         return authService.login(request);
     }
 
-    // API 3: Get Current User (Me) - Satisfies Requirement 3.1
+    // API 3: Get Current User (Me)
     @GetMapping("/me")
     public ApiResponse<?> getCurrentUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
-            System.err.println("Error: No authentication found in SecurityContext");
+        String email = SecurityUtils.getCurrentUserDetails() != null ? SecurityUtils.getCurrentUserDetails().getEmail() : null;
+        if (email == null) {
             throw new org.springframework.security.access.AccessDeniedException("No authentication found");
         }
-        System.out.println("Processing /me request for: " + auth.getName());
-        // auth.getName() returns the email stored in the JWT Subject
-        return authService.getCurrentUser(auth.getName());
+        return authService.getCurrentUser(email);
     }
 
     // API 4: Logout - Satisfies Requirement 3.1

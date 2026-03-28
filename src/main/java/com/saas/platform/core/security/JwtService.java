@@ -21,9 +21,10 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    // Generates a token with extra claims: tenantId and role
-    public String generateToken(String email, String tenantId, String role) {
+    // Generates a token with extra claims: userId, tenantId and role
+    public String generateToken(String userId, String email, String tenantId, String role) {
         Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("userId", userId);
         extraClaims.put("tenantId", tenantId);
         extraClaims.put("role", role);
         

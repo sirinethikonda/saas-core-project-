@@ -2,6 +2,7 @@ package com.saas.platform.modules.user;
 
 import com.saas.platform.core.common.ApiResponse;
 import com.saas.platform.core.middleware.TenantContext;
+import com.saas.platform.core.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,24 +27,24 @@ public class UserController {
 
     @PostMapping("/tenants/{tenantId}/users")
     @PreAuthorize("hasRole('ROLE_tenant_admin')")
-    public ApiResponse<?> createUser(@PathVariable String tenantId, @RequestBody User user) {
-        String adminEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userService.addUser(tenantId, user, adminEmail);
+    public ApiResponse<?> addUser(@PathVariable String tenantId, @RequestBody User user) {
+        return userService.addUser(tenantId, user, SecurityUtils.getCurrentUserId());
     }
 
     @PutMapping("/users/{userId}")
     @PreAuthorize("hasAnyRole('ROLE_tenant_admin', 'ROLE_user')")
     public ApiResponse<?> updateUser(@PathVariable String userId, @RequestBody User updates) {
         String currentTenantId = TenantContext.getCurrentTenant();
-        String adminEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userService.updateUser(userId, updates, currentTenantId, adminEmail);
+        String currentUserId = SecurityUtils.getCurrentUserId();
+        String requesterRole = SecurityUtils.hasRole("ROLE_tenant_admin") ? "tenant_admin" : "user";
+
+        return userService.updateUser(userId, updates, currentTenantId, currentUserId, requesterRole);
     }
 
     @DeleteMapping("/users/{userId}")
     @PreAuthorize("hasRole('ROLE_tenant_admin')")
     public ApiResponse<?> deleteUser(@PathVariable String userId) {
         String tenantId = TenantContext.getCurrentTenant(); 
-        String adminEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userService.deleteUser(userId, tenantId, adminEmail);
+        return userService.deleteUser(userId, tenantId, SecurityUtils.getCurrentUserId());
     }
 }

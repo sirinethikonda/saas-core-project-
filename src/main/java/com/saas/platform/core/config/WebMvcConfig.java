@@ -31,7 +31,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         // Mandatory for Docker: Backend must accept requests from frontend container
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:3000", "http://frontend:3000")
+                .allowedOriginPatterns("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);

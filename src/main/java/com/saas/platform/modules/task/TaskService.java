@@ -26,7 +26,7 @@ public class TaskService {
     private final AuditLogger auditLogger;
 
     @Transactional
-    public ApiResponse<?> createTask(String projectId, Task task) {
+    public ApiResponse<?> createTask(String projectId, Task task, String userId) {
         String currentTenantId = TenantContext.getCurrentTenant();
 
         // 1. Fetch the project with Tenant Isolation check
@@ -54,7 +54,7 @@ public class TaskService {
         task.setTenantId(currentTenantId); // Enforce current tenant
         
         Task savedTask = taskRepository.save(task);
-        auditLogger.log("CREATE_TASK", "Task created: " + task.getTitle());
+        auditLogger.log("CREATE_TASK", "task", savedTask.getId(), userId, "Task created: " + task.getTitle());
         
         return ApiResponse.success("Task created successfully", savedTask);
     }
@@ -76,7 +76,7 @@ public class TaskService {
     }
 
     // API 18: Update Task Status with Isolation
-    public ApiResponse<?> updateTaskStatus(String taskId, String status) {
+    public ApiResponse<?> updateTaskStatus(String taskId, String status, String userId) {
         String currentTenantId = TenantContext.getCurrentTenant();
         
         Task task = taskRepository.findById(taskId)
@@ -93,7 +93,7 @@ public class TaskService {
     }
 
     // API 19: Full Task Update with Isolation
-    public ApiResponse<?> updateTask(String taskId, Task updates) {
+    public ApiResponse<?> updateTask(String taskId, Task updates, String userId) {
         String currentTenantId = TenantContext.getCurrentTenant();
         
         Task existingTask = taskRepository.findById(taskId)
@@ -108,7 +108,7 @@ public class TaskService {
         if (updates.getDueDate() != null) existingTask.setDueDate(updates.getDueDate());
         
         taskRepository.save(existingTask);
-        auditLogger.log("UPDATE_TASK", "Task ID " + taskId + " updated");
+        auditLogger.log("UPDATE_TASK", "task", taskId, userId, "Task ID " + taskId + " updated");
         
         return ApiResponse.success("Task updated successfully", existingTask);
     }
@@ -126,7 +126,7 @@ public class TaskService {
 
     // API 21: Delete Task with Isolation
     @Transactional
-    public ApiResponse<?> deleteTask(String taskId) {
+    public ApiResponse<?> deleteTask(String taskId, String userId) {
         String currentTenantId = TenantContext.getCurrentTenant();
         
         Task task = taskRepository.findById(taskId)
@@ -137,7 +137,7 @@ public class TaskService {
         }
 
         taskRepository.delete(task);
-        auditLogger.log("DELETE_TASK", "Task ID " + taskId + " deleted");
+        auditLogger.log("DELETE_TASK", "task", taskId, userId, "Task ID " + taskId + " deleted");
         
         return ApiResponse.success("Task deleted successfully", null);
     }

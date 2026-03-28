@@ -28,7 +28,7 @@ public class UserService {
 
     // API 8: Add User to Tenant
     @Transactional
-    public ApiResponse<?> addUser(String tenantId, User userRequest, String adminId) {
+    public ApiResponse<?> addUser(String tenantId, User userRequest, String requesterId) {
         Tenant tenant = tenantRepository.findById(tenantId)
                 .orElseThrow(() -> new RuntimeException("Tenant not found"));
         
@@ -52,14 +52,14 @@ public class UserService {
         userRequest.setIsActive(true);
         
         User savedUser = userRepository.save(userRequest);
-        auditLogger.log("CREATE_USER", "New user " + savedUser.getEmail() + " added by: " + adminId);
+        auditLogger.log("CREATE_USER", "user", savedUser.getId(), requesterId, "New user " + savedUser.getEmail() + " added by: " + requesterId);
         
         return ApiResponse.success("User added successfully", savedUser);
     }
 
     // API 10: Update User Profile
     @Transactional
-    public ApiResponse<?> updateUser(String userId, User updates, String tenantId, String adminId) {
+    public ApiResponse<?> updateUser(String userId, User updates, String tenantId, String requesterId, String requesterRole) {
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -68,23 +68,30 @@ public class UserService {
             return ApiResponse.error("Unauthorized: You cannot update a user from another organization");
         }
 
+        // Role-Based Field Enforcement
+        // Users can update their own fullName
         if (updates.getFullName() != null) existingUser.setFullName(updates.getFullName());
-        if (updates.getRole() != null) existingUser.setRole(updates.getRole());
         
-        // Handle Password Update
+        // Handle Password Update (Self or Admin)
         if (updates.getPassword() != null && !updates.getPassword().isEmpty()) {
             existingUser.setPasswordHash(passwordEncoder.encode(updates.getPassword()));
         }
 
+        // Only tenant_admin can update role and isActive
+        if ("tenant_admin".equals(requesterRole)) {
+            if (updates.getRole() != null) existingUser.setRole(updates.getRole());
+            if (updates.getIsActive() != null) existingUser.setIsActive(updates.getIsActive());
+        }
+
         User savedUser = userRepository.save(existingUser);
-        auditLogger.log("UPDATE_USER", "User " + userId + " updated by " + adminId);
+        auditLogger.log("UPDATE_USER", "user", userId, requesterId, "User " + userId + " updated by " + requesterId);
         
         return ApiResponse.success("User updated successfully", savedUser);
     }
 
-    // API 11: Delete User (ADDED THIS MISSING METHOD)
+    // API 11: Delete User
     @Transactional
-    public ApiResponse<?> deleteUser(String userId, String tenantId, String adminId) {
+    public ApiResponse<?> deleteUser(String userId, String tenantId, String requesterId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -94,12 +101,12 @@ public class UserService {
         }
 
         // Prevent self-deletion
-        if (userId.equals(adminId)) {
+        if (userId.equals(requesterId)) {
             return ApiResponse.error("Security violation: You cannot delete your own account");
         }
 
         userRepository.delete(user);
-        auditLogger.log("DELETE_USER", "User ID " + userId + " deleted by: " + adminId);
+        auditLogger.log("DELETE_USER", "user", userId, requesterId, "User ID " + userId + " deleted by: " + requesterId);
         
         return ApiResponse.success("User deleted successfully", null);
     }

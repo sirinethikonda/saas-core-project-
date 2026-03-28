@@ -85,6 +85,18 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getMessage()));
     }
 
+    // Handle DB Constraint Violations (Requirement 4)
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDataIntegrity(org.springframework.dao.DataIntegrityViolationException ex) {
+        System.err.println("Database Integrity Conflict: " + ex.getMessage());
+        String msg = "Database error: This record already exists or violates a constraint.";
+        if (ex.getMessage() != null && ex.getMessage().contains("Duplicate entry")) {
+            msg = "Conflict: A record with this unique identifier already exists.";
+        }
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(msg));
+    }
+
     // Handle 500 - General Errors
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception ex) {

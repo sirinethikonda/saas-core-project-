@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.saas.platform.core.common.ApiResponse;
+import com.saas.platform.core.security.SecurityUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,8 +27,7 @@ public class ProjectController {
     // API 12: Create Project
     @PostMapping
     public ApiResponse<?> create(@Valid @RequestBody Project project) {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        return projectService.createProject(project, userId);
+        return projectService.createProject(project, SecurityUtils.getCurrentUserId());
     }
 
     // API 13: List Projects
@@ -45,15 +45,13 @@ public class ProjectController {
     // API 14: Update Project
     @PutMapping("/{id}")
     public ApiResponse<?> update(@PathVariable String id, @Valid @RequestBody Project project) {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        return projectService.updateProject(id, project, userId);
+        return projectService.updateProject(id, project, SecurityUtils.getCurrentUserId());
     }
 
     // API 15: Delete Project
     @DeleteMapping("/{id}")
     public ApiResponse<?> delete(@PathVariable String id) {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        projectService.deleteProject(id, userId);
+        projectService.deleteProject(id, SecurityUtils.getCurrentUserId());
         return ApiResponse.success("Project deleted successfully", null);
     }
 }
