@@ -1,28 +1,5 @@
 # API Documentation
 
-## Authentication Module
-
-### 1. Register Tenant
-*   **Endpoint:** `POST /api/auth/register-tenant`
-*   **Auth:** Public
-*   **Body:**
-    ```json
-    {
-      "tenantName": "Sri Innovations",
-      "subdomain": "sri-innovations",
-      "adminFullName": "Konda Sri",
-      "adminEmail": "KondaSri@gmail.com",
-      "adminPassword": "SecurePassword123!"
-    }
-    ```
-*   **Response (201 Created):**
-    ```json
-    {
-      "success": true,
-      "message": "Tenant registered successfully",
-      "data": { "tenantId": "uuid..." }
-    }
-    ```
 
 ### 2. User Login
 *   **Endpoint:** `POST /api/auth/login`
