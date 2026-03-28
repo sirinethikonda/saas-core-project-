@@ -218,9 +218,17 @@ The `docs/` folder contains detailed technical specifications and design documen
 | [**Technical Specification**](docs/technical-spec.md) | Detailed folder structure, development setup, and environment configuration. |
 
 
-#
+---
+##  Contributing
+
+1. Fork the repo.
+2. Create your feature branch (`git checkout -b feature/amazing-feature`).
+3. Commit your changes (`git commit -m 'Add some amazing-feature'`).
+4. Push to the branch (`git push origin feature/amazing-feature`).
+5. Open a Pull Request.
 
 ---
+
 © 2026 Multi-Tenant SaaS Project. All Rights Reserved.
 
 ---
