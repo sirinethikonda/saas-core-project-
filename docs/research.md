@@ -27,6 +27,10 @@ A critical challenge in Shared Schema multi-tenancy is managing zero-downtime mi
 - **Asynchronous Data Refactoring**: For large-scale data changes, we use a "double-write" pattern or background batch jobs to avoid locking tables for all tenants simultaneously.
 - **Pre-migration Validation**: Automated tests run migrations against a sanitized copy of production data before any deployment.
 
+### Scalability Considerations
+While the shared schema provides the highest density, we mitigate its limitations via:
+- **Read-Write Splitting**: Using MySQL replication to offload read traffic to multiple read-replicas.
+- **Sharding (Future Phase)**: If the single database reaches physical limits, we can "shard" by grouping subsets of tenants into different database clusters, effectively combining the Shared Schema and Separate Database models.
 
 ---
 
